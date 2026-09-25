@@ -1,0 +1,16 @@
+{
+  "version": "v1",
+  "hooks": [
+    {
+      "name": "Format TypeScript on Save",
+      "trigger": "PostFileSave",
+      "matcher": "\\.(ts|tsx)$",
+      "description": "When a .ts or .tsx file is saved, run the project's formatting command.",
+      "action": {
+        "type": "command",
+        "command": "npm run format",
+        "timeout": 30
+      }
+    }
+  ]
+}

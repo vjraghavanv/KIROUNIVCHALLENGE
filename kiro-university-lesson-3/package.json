@@ -1,0 +1,13 @@
+{
+  "name": "kiro-university-lesson-3",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Lesson 3 - Kiro hooks: format-on-save",
+  "scripts": {
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
+  },
+  "devDependencies": {
+    "prettier": "^3.3.3"
+  }
+}
