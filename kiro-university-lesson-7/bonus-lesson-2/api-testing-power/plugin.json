@@ -1,0 +1,20 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "api-testing",
+  "version": "1.0.0",
+  "description": "Helps developers design, validate, and test REST APIs with practical API testing guidance",
+  "author": {
+    "name": "Vijayaraghavan Vashudevan"
+  },
+  "keywords": [
+    "api",
+    "api testing",
+    "rest",
+    "rest api",
+    "http",
+    "testing",
+    "api validation",
+    "postman"
+  ],
+  "license": "Apache-2.0"
+}
