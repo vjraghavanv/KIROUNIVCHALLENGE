@@ -1,0 +1,151 @@
+# Data Governance — Namma Seva AI
+
+## Purpose
+
+Every government-service fact that Namma Seva AI shows a citizen must be
+traceable to a trusted official source. This document defines the canonical
+data model, the rules for source metadata, and the verification lifecycle for
+service knowledge. These rules are binding on all knowledge-base (KB) content
+and on any code that reads, writes, or validates it.
+
+## Canonical service record
+
+Service knowledge is stored as structured, versioned JSON. One record = one
+government service. The record is the single source of truth; the AI layer may
+only rephrase what a record contains, never add facts to it.
+
+```ts
+type ISODate = string; // "YYYY-MM-DD"
+
+type ServiceCategory =
+  | "certificate"
+  | "welfare-scheme"
+  | "pension"
+  | "education"
+  | "civic-service"
+  | "other";
+
+type VerificationStatus = "verified" | "conditional" | "unverified";
+
+interface LocalizedText {
+  en: string;
+  ta: string;
+}
+
+interface Source {
+  name: string;              // official body / page name
+  url: string;               // official URL or reference
+  publishedDate?: ISODate;   // when the source published/updated, if known
+  lastChecked: ISODate;      // when we last verified the source
+  verificationStatus: VerificationStatus;
+}
+
+type DocumentKind = "required" | "conditional" | "optional";
+
+interface DocumentRequirement {
+  id: string;                // unique within the service
+  name: LocalizedText;
+  kind: DocumentKind;
+  condition?: LocalizedText; // MUST be present when kind === "conditional"
+  reason?: LocalizedText;    // why it is required, when officially stated
+  sourceRef: string;         // id/name of a Source backing this requirement
+}
+
+interface Step {
+  order: number;             // 1-based, contiguous
+  instruction: LocalizedText;
+  sourceRef?: string;
+}
+
+interface Channel {
+  type: "online" | "offline" | "csc";
+  label: LocalizedText;
+  url?: string;              // required when type === "online"
+}
+
+interface Faq {
+  question: LocalizedText;
+  answer: LocalizedText;
+  sourceRef?: string;
+}
+
+interface ServiceRecord {
+  serviceId: string;              // unique across the KB, kebab-case
+  name: LocalizedText;
+  category: ServiceCategory;
+  description: LocalizedText;
+  eligibility: LocalizedText[];
+  documents: DocumentRequirement[];
+  steps: Step[];
+  applicationChannels: Channel[];
+  department: LocalizedText;
+  officialSources: Source[];      // at least one
+  faqs: Faq[];
+  lastVerified: ISODate;
+  status: VerificationStatus;
+}
+```
+
+## Field rules
+
+- **`serviceId`** is unique across the entire KB, kebab-case, stable once
+  published. Renaming a service does not change its id.
+- **`name`, `description`, `department`** must have both `en` and `ta`. Tamil
+  must preserve official proper nouns; do not transliterate an official English
+  scheme name into something a citizen could not match on the portal.
+- **`category`** must be one of the enum values. Unknown categories are a
+  validation failure.
+- **`officialSources`** must contain at least one `Source`. A record with no
+  source cannot be `status: "verified"`.
+- **`documents`**:
+  - A document `kind` is exactly one of required / conditional / optional.
+  - The same document (by `name`) must not appear as both required and optional.
+  - A `conditional` document must include a non-empty `condition`.
+  - Every document references a backing source via `sourceRef`.
+- **`steps`** are 1-based and contiguous (no gaps, no duplicates in `order`).
+- **`applicationChannels`** of type `online` must include a `url`.
+- **`lastVerified`** is the date a human/agent last confirmed the record against
+  its sources.
+
+## Verification lifecycle
+
+- **verified** — every important claim (eligibility, documents, steps, fees,
+  processing time) is backed by a current official source that was checked on or
+  after `lastVerified`.
+- **conditional** — the service is real and sourced, but one or more fields are
+  situational or partially confirmed. The UI must surface the condition.
+- **unverified** — insufficient official backing. The record may exist for
+  navigation, but unverified fields must render as
+  "Official information not available in the current knowledge base."
+
+Never upgrade a record to `verified` to make a demo look complete. Trust beats
+coverage.
+
+## What the model may and may not do
+
+- The AI **may** rephrase, translate, summarize, and reorder content that
+  already exists in a `ServiceRecord`.
+- The AI **may not** introduce a document, step, fee, eligibility rule, or
+  deadline that is not present in a record.
+- Fees and processing times are shown **only** when the record carries them with
+  a source. Otherwise: "Official information not available in the current
+  knowledge base."
+- Application readiness (READY / NOT READY / NEEDS VERIFICATION) is **computed**
+  from `documents` versus the citizen's ticked items. It is never generated by
+  the model.
+
+## Adding a new service
+
+1. Create a new JSON record following the schema above.
+2. Give it a unique `serviceId`.
+3. Populate both `en` and `ta` for all localized fields.
+4. Attach at least one official `Source`; set `verificationStatus` honestly.
+5. Set `status` to the lowest level the evidence supports.
+6. The knowledge-validation hook must pass before the record is considered part
+   of the KB.
+
+## Privacy in data
+
+- Records describe services, not citizens. Do not store citizen-provided
+  identifiers (Aadhaar, PAN, phone) in the KB or logs.
+- Sample data and examples use placeholders, never real personal identifiers.
