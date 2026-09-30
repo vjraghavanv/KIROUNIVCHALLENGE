@@ -25,8 +25,9 @@ replacement for government portals and not a source of legal advice.
 
 The project lives under `final-project/` and is being built with Kiro. The Kiro
 planning foundation (Specs + Steering) is in place. **Phase 1** (the first
-working vertical slice) and **Phase 2** (the Official Knowledge Base: strengthened
-validation and source verification) have been implemented and tested.
+working vertical slice), **Phase 2** (the Official Knowledge Base: strengthened
+validation and source verification), and **Phase 3** (the Multilingual Assistant:
+language-invariant Tamil/English discovery) have been implemented and tested.
 
 ### Status
 
@@ -36,11 +37,14 @@ validation and source verification) have been implemented and tested.
 - Phase 2 implemented: hardened knowledge-base validation, a source-verification
   module (VERIFIED / CONDITIONAL / UNVERIFIED + freshness), and a frontend
   verification badge with source and last-verified/checked display.
+- Phase 3 implemented: language-invariant service discovery so equivalent Tamil
+  and English queries resolve to the same service, plus persisted UI-language
+  selection.
 - All service data is clearly-marked **demo/mock** data; no real government
   requirements are asserted yet.
-- Backend tests: **37/37 passing** (integration + validation + source-verification
-  + property-based). Frontend typecheck and production build pass.
-- No commits or pushes made; existing Git history preserved.
+- Backend tests: **47/47 passing** (integration + validation + source-verification
+  + multilingual + property-based). Frontend typecheck and production build pass.
+- Existing Git history preserved.
 
 ### Phase 1 implementation (vertical slice)
 
@@ -99,6 +103,33 @@ The API contract is unchanged in Phase 2, so `shared/CONTRACT.md` was not
 modified. `source_verification` is currently internal (no endpoint yet); wiring
 its report into a knowledge-validation hook is planned for Lesson 3.
 
+### Phase 3 implementation (Multilingual Assistant)
+
+Phase 3 makes the discovery experience genuinely usable in Tamil and English,
+keeping the architecture, the Provider abstraction (`MockProvider`), and the HTTP
+API stable.
+
+- **Language-invariant discovery** (`backend/app/domain/discovery.py`): query
+  scoring now drops language-balanced stopwords and matches tokens against the
+  service name **and** per-language aliases in both `en` and `ta`, so equivalent
+  Tamil and English queries resolve to the same `serviceId`. The
+  resolved / clarification / no-match behavior is unchanged; nothing is guessed.
+- **Search aliases** (`backend/app/domain/models.py`,
+  `backend/app/data/demo_services.json`): `ServiceRecord` gains an optional
+  `aliases` field (localized keyword lists) used only for discovery matching, not
+  asserted as official facts. The three demo services carry bilingual aliases.
+- **Persisted UI language** (`frontend/src/i18n.ts`, `App.tsx`): the selected
+  Tamil/English language is stored in `localStorage` and restored on load,
+  defaulting to English per the multilingual spec.
+- **Contract** (`shared/CONTRACT.md`): documents the new optional `aliases`
+  field. The change is additive and backward compatible — no endpoint signatures
+  changed.
+
+Example: both "I need an income certificate" (EN) and "எனக்கு வருமான சான்றிதழ்
+வேண்டும்" (TA) resolve to `income-certificate`, each responding in the selected
+language. Verified by live API check and by property-based tests asserting
+equivalent EN/TA queries share one `serviceId`.
+
 ### Kiro Specs — Lesson 1 (`final-project/.kiro/specs/`)
 
 Each spec contains `requirements.md` (EARS-style, testable acceptance criteria,
@@ -150,13 +181,13 @@ integration testing called out).
 | Lesson 1 — Specs | 8 feature specs driving the build | `final-project/.kiro/specs/` |
 | Lesson 2 — Steering | 8 steering documents | `final-project/.kiro/steering/` |
 | Lesson 3 — Hooks | Frontend / backend / knowledge / security hooks (planned) | `final-project/.kiro/hooks/` |
-| Lesson 4 — Property-Based Testing | Readiness + knowledge/verification invariants (Hypothesis) | `final-project/backend/tests/test_readiness_properties.py`, `test_knowledge_properties.py` |
+| Lesson 4 — Property-Based Testing | Readiness, knowledge/verification, and multilingual invariants (Hypothesis) | `final-project/backend/tests/test_readiness_properties.py`, `test_knowledge_properties.py`, `test_multilingual_properties.py` |
 | Lesson 5 — Powers | Namma Seva Government Services Power (planned) | `final-project/namma-seva-power/` |
 | Lesson 6 — MCP | AWS/Bedrock docs + fetch during development (planned) | `final-project/.kiro/settings/mcp.json` |
 | Lesson 7 — Custom Agents | Purpose-built domain agents (planned) | `final-project/.kiro/agents/` |
 
 Note: Lessons 1 and 2 have real artifacts today (the specs and steering above),
-and Lesson 4 now has real property-based tests in the Phase 1 backend. Lessons
-3, 5, 6, and 7 are designed and mapped but not yet implemented; the table marks
-those as planned and their evidence locations will be populated as the build
-proceeds.
+and Lesson 4 has real property-based tests across the Phase 1–3 backend
+(readiness, knowledge/verification, and multilingual invariants). Lessons 3, 5,
+6, and 7 are designed and mapped but not yet implemented; the table marks those
+as planned and their evidence locations will be populated as the build proceeds.
