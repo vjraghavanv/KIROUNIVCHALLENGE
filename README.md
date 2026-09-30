@@ -26,8 +26,10 @@ replacement for government portals and not a source of legal advice.
 The project lives under `final-project/` and is being built with Kiro. The Kiro
 planning foundation (Specs + Steering) is in place. **Phase 1** (the first
 working vertical slice), **Phase 2** (the Official Knowledge Base: strengthened
-validation and source verification), and **Phase 3** (the Multilingual Assistant:
-language-invariant Tamil/English discovery) have been implemented and tested.
+validation and source verification), **Phase 3** (the Multilingual Assistant:
+language-invariant Tamil/English discovery), and **Phase 4** (the grounded RAG
+assistant: a `/ask` pipeline with source-grounded answers and a provider
+abstraction) have been implemented and tested.
 
 ### Status
 
@@ -40,10 +42,15 @@ language-invariant Tamil/English discovery) have been implemented and tested.
 - Phase 3 implemented: language-invariant service discovery so equivalent Tamil
   and English queries resolve to the same service, plus persisted UI-language
   selection.
+- Phase 4 implemented: a grounded RAG assistant (`POST /ask`) that retrieves,
+  grounds answers strictly in the retrieved record, verifies sources, and safely
+  declines when it cannot ground an answer — behind a MockProvider/BedrockProvider
+  abstraction that never requires live AWS.
 - All service data is clearly-marked **demo/mock** data; no real government
   requirements are asserted yet.
-- Backend tests: **47/47 passing** (integration + validation + source-verification
-  + multilingual + property-based). Frontend typecheck and production build pass.
+- Backend tests: **65/65 passing** (integration + validation + source-verification
+  + multilingual + RAG + property-based). Frontend typecheck and production build
+  pass.
 - Existing Git history preserved.
 
 ### Phase 1 implementation (vertical slice)
@@ -130,6 +137,37 @@ Example: both "I need an income certificate" (EN) and "எனக்கு வர
 language. Verified by live API check and by property-based tests asserting
 equivalent EN/TA queries share one `serviceId`.
 
+### Phase 4 implementation (grounded RAG assistant)
+
+Phase 4 adds a grounded question-answering pipeline that reuses the existing
+retrieval and verification rather than introducing a parallel system.
+
+- **Ask pipeline** (`backend/app/domain/rag_assistant.py`): `ask()` retrieves via
+  the existing `discover()`, grounds the phrasing through the `Provider`, verifies
+  the record via `source_verification`, and returns a single `GroundedResponse`
+  (answer, service, documents, steps, sources, verification status, cited source
+  refs, and a safety notice). Cited sources are always a subset of the retrieved
+  record's sources, so an answer can never cite a source that was not retrieved.
+- **Safe grounding** (`ai-rag.md`): if nothing grounds to a source, the response
+  is marked `grounded=false`, is never reported as verified, and falls back to the
+  standard "official information unavailable" phrasing. Ambiguous queries return a
+  clarification, unknown queries return no-match — nothing is fabricated.
+- **Provider abstraction** (`backend/app/ai/provider.py`): `MockProvider` stays
+  the deterministic default; a `BedrockProvider` boundary is selected only by
+  `NSA_PROVIDER=bedrock` (config from environment only), and the factory falls
+  back to MockProvider so the app never requires live AWS or credentials.
+- **API** (`backend/app/main.py`, `shared/CONTRACT.md`): adds an additive
+  `POST /ask` returning `GroundedResponse`. All existing endpoints are unchanged.
+- **Frontend** (`App.tsx`, `api.ts`, `types.ts`, `i18n.ts`): an "Ask" action that
+  shows the grounded answer, the service's verification status, cited sources, and
+  a link to the full service detail — preserving the Phase 3 Tamil/English switch.
+
+Example: `POST /ask` with "I need an income certificate" (EN) returns a grounded
+answer for `income-certificate` with `isVerified=false` (demo/unverified data),
+citing only the retrieved record's source; a gibberish query returns a safe
+no-match. Verified by live API check and property-based tests (an answer never
+cites an un-retrieved source; ungrounded content is never marked verified).
+
 ### Kiro Specs — Lesson 1 (`final-project/.kiro/specs/`)
 
 Each spec contains `requirements.md` (EARS-style, testable acceptance criteria,
@@ -181,13 +219,14 @@ integration testing called out).
 | Lesson 1 — Specs | 8 feature specs driving the build | `final-project/.kiro/specs/` |
 | Lesson 2 — Steering | 8 steering documents | `final-project/.kiro/steering/` |
 | Lesson 3 — Hooks | Frontend / backend / knowledge / security hooks (planned) | `final-project/.kiro/hooks/` |
-| Lesson 4 — Property-Based Testing | Readiness, knowledge/verification, and multilingual invariants (Hypothesis) | `final-project/backend/tests/test_readiness_properties.py`, `test_knowledge_properties.py`, `test_multilingual_properties.py` |
+| Lesson 4 — Property-Based Testing | Readiness, knowledge/verification, multilingual, and RAG-grounding invariants (Hypothesis) | `final-project/backend/tests/test_readiness_properties.py`, `test_knowledge_properties.py`, `test_multilingual_properties.py`, `test_rag_properties.py` |
 | Lesson 5 — Powers | Namma Seva Government Services Power (planned) | `final-project/namma-seva-power/` |
 | Lesson 6 — MCP | AWS/Bedrock docs + fetch during development (planned) | `final-project/.kiro/settings/mcp.json` |
 | Lesson 7 — Custom Agents | Purpose-built domain agents (planned) | `final-project/.kiro/agents/` |
 
 Note: Lessons 1 and 2 have real artifacts today (the specs and steering above),
-and Lesson 4 has real property-based tests across the Phase 1–3 backend
-(readiness, knowledge/verification, and multilingual invariants). Lessons 3, 5,
-6, and 7 are designed and mapped but not yet implemented; the table marks those
-as planned and their evidence locations will be populated as the build proceeds.
+and Lesson 4 has real property-based tests across the Phase 1–4 backend
+(readiness, knowledge/verification, multilingual, and RAG-grounding invariants).
+Lessons 3, 5, 6, and 7 are designed and mapped but not yet implemented; the table
+marks those as planned and their evidence locations will be populated as the
+build proceeds.
