@@ -23,16 +23,44 @@ explanation → document checklist → step-by-step plan → official sources. I
 an informational assistant grounded in trusted official sources, not a
 replacement for government portals and not a source of legal advice.
 
-The project lives under `final-project/` and is being built with Kiro. It is
-currently in the **planning foundation** stage — Kiro Specs and Steering are in
-place; application code has not been implemented yet.
+The project lives under `final-project/` and is being built with Kiro. The Kiro
+planning foundation (Specs + Steering) is in place, and **Phase 1** — the first
+working vertical slice — has been implemented and tested.
 
 ### Status
 
 - Planning foundation complete: 8 feature specs + 8 steering documents.
-- No application code, commits, or pushes yet — planning artifacts only.
-- Existing Git history preserved; the `final-project/` tree is currently
-  untracked.
+- Phase 1 vertical slice implemented: FastAPI backend + React/TS frontend
+  covering **service search → service details → documents → action steps**.
+- All service data is clearly-marked **demo/mock** data; no real government
+  requirements are asserted yet.
+- Backend tests: **12/12 passing** (8 integration + 4 property-based). Frontend
+  typecheck and production build pass.
+- No commits or pushes made; existing Git history preserved.
+
+### Phase 1 implementation (vertical slice)
+
+Everything lives inside `final-project/`, with backend and frontend cleanly
+separated and a shared contract as the source of truth.
+
+- `shared/CONTRACT.md` — the domain/API contract both sides implement
+  (`ServiceRecord` schema, result types, HTTP endpoints).
+- `backend/` — Python + FastAPI. Domain models + validation
+  (`data-governance` rules), a validated demo knowledge base, deterministic
+  discovery and readiness logic, and a `MockProvider` (Bedrock is **not** a
+  required dependency yet). Tests in `backend/tests/`.
+- `frontend/` — React + TypeScript + Vite (strict TS). Home/search screen with a
+  Tamil/English switch and a service-detail screen showing documents (by kind),
+  action steps, application channels, and official sources, with demo/unverified
+  badges and a persistent "informational assistant" notice.
+
+**API endpoints (Phase 1):** `GET /health`, `POST /discover`, `GET /categories`,
+`GET /services`, `GET /services/{serviceId}`, `POST /checklist/evaluate`.
+
+**Run locally:** backend — `cd final-project/backend`, create a venv, install
+`.[test]`, then `uvicorn app.main:app --port 8000`. Frontend — `cd
+final-project/frontend`, `npm install`, `npm run dev` (proxies `/api` to the
+backend on port 8000).
 
 ### Kiro Specs — Lesson 1 (`final-project/.kiro/specs/`)
 
@@ -85,12 +113,13 @@ integration testing called out).
 | Lesson 1 — Specs | 8 feature specs driving the build | `final-project/.kiro/specs/` |
 | Lesson 2 — Steering | 8 steering documents | `final-project/.kiro/steering/` |
 | Lesson 3 — Hooks | Frontend / backend / knowledge / security hooks (planned) | `final-project/.kiro/hooks/` |
-| Lesson 4 — Property-Based Testing | Grounding, readiness, and language invariants | backend/frontend test suites (planned) |
+| Lesson 4 — Property-Based Testing | Readiness invariants (Hypothesis) — real tests today; more to come | `final-project/backend/tests/test_readiness_properties.py` |
 | Lesson 5 — Powers | Namma Seva Government Services Power (planned) | `final-project/namma-seva-power/` |
 | Lesson 6 — MCP | AWS/Bedrock docs + fetch during development (planned) | `final-project/.kiro/settings/mcp.json` |
 | Lesson 7 — Custom Agents | Purpose-built domain agents (planned) | `final-project/.kiro/agents/` |
 
-Note: Lessons 1 and 2 have real artifacts today (the specs and steering above).
-Lessons 3–7 are designed and mapped but not yet implemented; the table marks
-those as planned and the evidence locations will be populated as the build
+Note: Lessons 1 and 2 have real artifacts today (the specs and steering above),
+and Lesson 4 now has real property-based tests in the Phase 1 backend. Lessons
+3, 5, 6, and 7 are designed and mapped but not yet implemented; the table marks
+those as planned and their evidence locations will be populated as the build
 proceeds.
