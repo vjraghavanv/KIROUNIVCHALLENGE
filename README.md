@@ -24,18 +24,22 @@ an informational assistant grounded in trusted official sources, not a
 replacement for government portals and not a source of legal advice.
 
 The project lives under `final-project/` and is being built with Kiro. The Kiro
-planning foundation (Specs + Steering) is in place, and **Phase 1** — the first
-working vertical slice — has been implemented and tested.
+planning foundation (Specs + Steering) is in place. **Phase 1** (the first
+working vertical slice) and **Phase 2** (the Official Knowledge Base: strengthened
+validation and source verification) have been implemented and tested.
 
 ### Status
 
 - Planning foundation complete: 8 feature specs + 8 steering documents.
 - Phase 1 vertical slice implemented: FastAPI backend + React/TS frontend
   covering **service search → service details → documents → action steps**.
+- Phase 2 implemented: hardened knowledge-base validation, a source-verification
+  module (VERIFIED / CONDITIONAL / UNVERIFIED + freshness), and a frontend
+  verification badge with source and last-verified/checked display.
 - All service data is clearly-marked **demo/mock** data; no real government
   requirements are asserted yet.
-- Backend tests: **12/12 passing** (8 integration + 4 property-based). Frontend
-  typecheck and production build pass.
+- Backend tests: **37/37 passing** (integration + validation + source-verification
+  + property-based). Frontend typecheck and production build pass.
 - No commits or pushes made; existing Git history preserved.
 
 ### Phase 1 implementation (vertical slice)
@@ -61,6 +65,39 @@ separated and a shared contract as the source of truth.
 `.[test]`, then `uvicorn app.main:app --port 8000`. Frontend — `cd
 final-project/frontend`, `npm install`, `npm run dev` (proxies `/api` to the
 backend on port 8000).
+
+### Phase 2 implementation (Official Knowledge Base)
+
+Phase 2 strengthens the knowledge layer so it is ready to consume verified
+official information later, without changing the architecture, the Provider
+abstraction, or the API contract.
+
+- **Hardened validation** (`backend/app/domain/validation.py`): rejects blank or
+  duplicate `serviceId`; unsupported verification states; missing official
+  source, verified-without-source, and sources missing name/url/`lastChecked`;
+  malformed documents (empty or duplicate ids, missing localized name,
+  conditional without a localized condition, the same document marked both
+  required and optional); malformed steps (non-positive, duplicate, or
+  non-contiguous orders, missing localized instruction); channels (bad type,
+  online without a URL); and localized fields missing `en` or `ta`. Invalid
+  records are excluded and reported, never served.
+- **Source verification** (`backend/app/domain/source_verification.py`): a pure
+  module that distinguishes **VERIFIED / CONDITIONAL / UNVERIFIED**, flags stale
+  sources (older than a freshness window, or undated), and aggregates a
+  maintainer-facing report. A record is treated as verified only if it claims
+  `VERIFIED` and has a non-stale official source; nothing upgrades an unverified
+  record.
+- **Small demo dataset** (`backend/app/data/demo_services.json`): three
+  clearly-marked demo services — `income-certificate` (unverified),
+  `birth-certificate` (unverified), and `street-light-complaint` (civic-service,
+  conditional). No real government facts, fees, URLs, or procedures are invented.
+- **Frontend** (`ServiceDetail`): shows a verification badge as text plus status
+  (not color alone), the record's last-verified date, and each source's
+  last-checked date.
+
+The API contract is unchanged in Phase 2, so `shared/CONTRACT.md` was not
+modified. `source_verification` is currently internal (no endpoint yet); wiring
+its report into a knowledge-validation hook is planned for Lesson 3.
 
 ### Kiro Specs — Lesson 1 (`final-project/.kiro/specs/`)
 
@@ -113,7 +150,7 @@ integration testing called out).
 | Lesson 1 — Specs | 8 feature specs driving the build | `final-project/.kiro/specs/` |
 | Lesson 2 — Steering | 8 steering documents | `final-project/.kiro/steering/` |
 | Lesson 3 — Hooks | Frontend / backend / knowledge / security hooks (planned) | `final-project/.kiro/hooks/` |
-| Lesson 4 — Property-Based Testing | Readiness invariants (Hypothesis) — real tests today; more to come | `final-project/backend/tests/test_readiness_properties.py` |
+| Lesson 4 — Property-Based Testing | Readiness + knowledge/verification invariants (Hypothesis) | `final-project/backend/tests/test_readiness_properties.py`, `test_knowledge_properties.py` |
 | Lesson 5 — Powers | Namma Seva Government Services Power (planned) | `final-project/namma-seva-power/` |
 | Lesson 6 — MCP | AWS/Bedrock docs + fetch during development (planned) | `final-project/.kiro/settings/mcp.json` |
 | Lesson 7 — Custom Agents | Purpose-built domain agents (planned) | `final-project/.kiro/agents/` |
