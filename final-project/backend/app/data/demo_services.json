@@ -1,0 +1,102 @@
+[
+  {
+    "serviceId": "income-certificate",
+    "name": { "en": "Income Certificate (DEMO)", "ta": "வருமான சான்றிதழ் (மாதிரி)" },
+    "category": "certificate",
+    "description": {
+      "en": "DEMO record. An income certificate states a family's annual income for use with schemes and admissions. Values here are placeholders, not official.",
+      "ta": "மாதிரி பதிவு. வருமான சான்றிதழ் ஒரு குடும்பத்தின் ஆண்டு வருமானத்தைக் குறிக்கிறது. இங்குள்ள தகவல்கள் மாதிரி மட்டுமே."
+    },
+    "eligibility": [
+      { "en": "DEMO: Resident of the state (placeholder criterion).", "ta": "மாதிரி: மாநில குடியிருப்பாளர் (மாதிரி நிபந்தனை)." }
+    ],
+    "documents": [
+      {
+        "id": "id-proof",
+        "name": { "en": "Identity proof", "ta": "அடையாளச் சான்று" },
+        "kind": "required",
+        "reason": { "en": "DEMO placeholder reason.", "ta": "மாதிரி காரணம்." },
+        "sourceRef": "demo-source"
+      },
+      {
+        "id": "address-proof",
+        "name": { "en": "Address proof", "ta": "முகவரிச் சான்று" },
+        "kind": "required",
+        "sourceRef": "demo-source"
+      },
+      {
+        "id": "income-declaration",
+        "name": { "en": "Income declaration", "ta": "வருமான அறிக்கை" },
+        "kind": "conditional",
+        "condition": { "en": "If self-employed", "ta": "சுயதொழில் செய்பவராக இருந்தால்" },
+        "sourceRef": "demo-source"
+      },
+      {
+        "id": "passport-photo",
+        "name": { "en": "Passport photo", "ta": "பாஸ்போர்ட் புகைப்படம்" },
+        "kind": "optional",
+        "sourceRef": "demo-source"
+      }
+    ],
+    "steps": [
+      { "order": 1, "instruction": { "en": "DEMO: Gather the required documents.", "ta": "மாதிரி: தேவையான ஆவணங்களைச் சேகரிக்கவும்." }, "sourceRef": "demo-source" },
+      { "order": 2, "instruction": { "en": "DEMO: Submit the application at the designated office or portal.", "ta": "மாதிரி: விண்ணப்பத்தை சமர்ப்பிக்கவும்." }, "sourceRef": "demo-source" },
+      { "order": 3, "instruction": { "en": "DEMO: Track the application and collect the certificate.", "ta": "மாதிரி: விண்ணப்பத்தைக் கண்காணித்து சான்றிதழைப் பெறவும்." }, "sourceRef": "demo-source" }
+    ],
+    "applicationChannels": [
+      { "type": "online", "label": { "en": "Demo online portal", "ta": "மாதிரி ஆன்லைன் போர்டல்" }, "url": "https://example.com/demo" },
+      { "type": "offline", "label": { "en": "Demo local office", "ta": "மாதிரி உள்ளூர் அலுவலகம்" } }
+    ],
+    "department": { "en": "Demo Revenue Department", "ta": "மாதிரி வருவாய்த் துறை" },
+    "officialSources": [
+      { "name": "Demo source (placeholder)", "url": "https://example.com/demo", "lastChecked": "2026-09-01", "verificationStatus": "unverified" }
+    ],
+    "faqs": [
+      { "question": { "en": "Is this real government data?", "ta": "இது உண்மையான அரசு தரவா?" }, "answer": { "en": "No. This is DEMO data for development only.", "ta": "இல்லை. இது மேம்பாட்டிற்கான மாதிரி தரவு மட்டுமே." } }
+    ],
+    "lastVerified": "2026-09-01",
+    "status": "unverified",
+    "dataSource": "demo"
+  },
+  {
+    "serviceId": "birth-certificate",
+    "name": { "en": "Birth Certificate (DEMO)", "ta": "பிறப்பு சான்றிதழ் (மாதிரி)" },
+    "category": "certificate",
+    "description": {
+      "en": "DEMO record. A birth certificate is an official record of a birth. Placeholder content only.",
+      "ta": "மாதிரி பதிவு. பிறப்பு சான்றிதழ் ஒரு பிறப்பின் அதிகாரப்பூர்வ பதிவு. மாதிரி உள்ளடக்கம் மட்டுமே."
+    },
+    "eligibility": [
+      { "en": "DEMO: Applicable to births to be registered (placeholder).", "ta": "மாதிரி: பதிவு செய்யப்பட வேண்டிய பிறப்புகளுக்கு (மாதிரி)." }
+    ],
+    "documents": [
+      {
+        "id": "hospital-record",
+        "name": { "en": "Hospital birth record", "ta": "மருத்துவமனை பிறப்பு பதிவு" },
+        "kind": "required",
+        "sourceRef": "demo-source"
+      },
+      {
+        "id": "parent-id",
+        "name": { "en": "Parent identity proof", "ta": "பெற்றோர் அடையாளச் சான்று" },
+        "kind": "required",
+        "sourceRef": "demo-source"
+      }
+    ],
+    "steps": [
+      { "order": 1, "instruction": { "en": "DEMO: Obtain the hospital birth record.", "ta": "மாதிரி: மருத்துவமனை பிறப்பு பதிவைப் பெறவும்." }, "sourceRef": "demo-source" },
+      { "order": 2, "instruction": { "en": "DEMO: Register the birth at the local body.", "ta": "மாதிரி: உள்ளாட்சி அமைப்பில் பிறப்பைப் பதிவு செய்யவும்." }, "sourceRef": "demo-source" }
+    ],
+    "applicationChannels": [
+      { "type": "offline", "label": { "en": "Demo local body office", "ta": "மாதிரி உள்ளாட்சி அலுவலகம்" } }
+    ],
+    "department": { "en": "Demo Municipal Department", "ta": "மாதிரி நகராட்சித் துறை" },
+    "officialSources": [
+      { "name": "Demo source (placeholder)", "url": "https://example.com/demo", "lastChecked": "2026-09-01", "verificationStatus": "unverified" }
+    ],
+    "faqs": [],
+    "lastVerified": "2026-09-01",
+    "status": "unverified",
+    "dataSource": "demo"
+  }
+]
