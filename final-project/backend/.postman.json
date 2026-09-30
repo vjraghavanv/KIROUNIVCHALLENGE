@@ -23,17 +23,17 @@
       "uid": "",
       "name": "Namma Seva AI Backend Tests",
       "workspace": "namma-seva",
-      "description": "Covers /health, /categories, /services, /services/{id} (incl. new aliases field), /discover, /checklist/evaluate per shared/CONTRACT.md.",
-      "requestCount": 10,
+      "description": "Covers /health, /categories, /services, /services/{id} (incl. aliases field), /discover, /ask (provider path), /checklist/evaluate per shared/CONTRACT.md.",
+      "requestCount": 11,
       "lastLocalTestRun": {
         "runner": "local contract runner (Postman MCP session unavailable: 'Session not found')",
-        "baseUrl": "http://127.0.0.1:8000",
-        "totalTests": 21,
-        "passed": 21,
+        "baseUrl": "http://127.0.0.1:8010",
+        "totalTests": 30,
+        "passed": 30,
         "failed": 0,
         "errors": 0,
         "successRate": "100%",
-        "notes": "Added assertions verifying the new ServiceRecord.aliases field is present on /services and /services/{id} responses."
+        "notes": "Ran after app/ai/provider.py edit (get_provider + BedrockProvider boundary + MockProvider refactor). Added /ask assertions (en + ta) exercising the provider path, plus existing ServiceRecord.aliases checks on /services and /services/{id}. NOTE: a stale server was running on :8000 without the new /ask route; ran current code on :8010 for accurate results."
       }
     }
   },
