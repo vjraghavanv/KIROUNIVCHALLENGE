@@ -1,5 +1,5 @@
 import { UI, pick } from "./i18n";
-import type { DocumentKind, Lang, ServiceRecord } from "./types";
+import type { DocumentKind, Lang, ServiceRecord, VerificationStatus } from "./types";
 
 interface Props {
   service: ServiceRecord;
@@ -13,6 +13,12 @@ const KIND_LABEL: Record<DocumentKind, keyof typeof UI> = {
   optional: "optional",
 };
 
+const STATUS_LABEL: Record<VerificationStatus, keyof typeof UI> = {
+  verified: "statusVerified",
+  conditional: "statusConditional",
+  unverified: "statusUnverified",
+};
+
 export function ServiceDetail({ service, lang, onBack }: Props) {
   const steps = [...service.steps].sort((a, b) => a.order - b.order);
 
@@ -24,10 +30,15 @@ export function ServiceDetail({ service, lang, onBack }: Props) {
 
       <header className="detail-header">
         <h1>{pick(service.name, lang)}</h1>
-        {service.status === "unverified" && (
-          <span className="badge warn">unverified</span>
-        )}
-        {service.dataSource === "demo" && <span className="badge">demo</span>}
+        <div className="badge-row">
+          <span
+            className={`badge status-${service.status}`}
+            title={UI.verificationStatus[lang]}
+          >
+            {UI.verificationStatus[lang]}: {UI[STATUS_LABEL[service.status]][lang]}
+          </span>
+          {service.dataSource === "demo" && <span className="badge">demo</span>}
+        </div>
         <p className="muted">{pick(service.description, lang)}</p>
       </header>
 
@@ -88,6 +99,9 @@ export function ServiceDetail({ service, lang, onBack }: Props) {
 
       <section aria-labelledby="src-h">
         <h2 id="src-h">{UI.sources[lang]}</h2>
+        <p className="muted">
+          {UI.lastVerified[lang]}: {service.lastVerified}
+        </p>
         {service.officialSources.length === 0 ? (
           <p className="muted">{UI.notAvailable[lang]}</p>
         ) : (

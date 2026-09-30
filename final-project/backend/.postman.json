@@ -1,0 +1,52 @@
+{
+  "version": "0.1",
+  "project": {
+    "name": "Namma Seva AI - Backend API",
+    "baseUrl": "http://127.0.0.1:8000"
+  },
+  "default": {
+    "workspace": "namma-seva",
+    "collection": "namma-seva-backend-tests",
+    "environment": "local"
+  },
+  "workspaces": {
+    "namma-seva": {
+      "id": "",
+      "name": "Namma Seva AI",
+      "type": "personal",
+      "description": "API testing for the Namma Seva AI FastAPI backend (Phase 1 vertical slice)."
+    }
+  },
+  "collections": {
+    "namma-seva-backend-tests": {
+      "id": "",
+      "uid": "",
+      "name": "Namma Seva AI Backend Tests",
+      "workspace": "namma-seva",
+      "description": "Covers /health, /categories, /services, /services/{id}, /discover, /checklist/evaluate per shared/CONTRACT.md.",
+      "requestCount": 10,
+      "lastLocalTestRun": {
+        "runner": "curl (local, Postman MCP unavailable)",
+        "baseUrl": "http://127.0.0.1:8000",
+        "totalTests": 10,
+        "passed": 10,
+        "failed": 0,
+        "errors": 0,
+        "successRate": "100%"
+      }
+    }
+  },
+  "environments": {
+    "local": {
+      "id": "",
+      "uid": "",
+      "name": "Local",
+      "workspace": "namma-seva",
+      "variables": {
+        "base_url": "http://127.0.0.1:8000",
+        "service_id": "income-certificate",
+        "category": "certificate"
+      }
+    }
+  }
+}

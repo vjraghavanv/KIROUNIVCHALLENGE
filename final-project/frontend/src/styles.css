@@ -72,6 +72,11 @@ h2 { margin-top: 28px; border-bottom: 1px solid var(--line); padding-bottom: 6px
 .kind-required { background: #e7f4ef; color: var(--accent); }
 .kind-conditional { background: #fff4e5; color: var(--warn); }
 
+.badge-row { display: flex; gap: 8px; flex-wrap: wrap; margin: 6px 0 10px; }
+.status-verified { background: #e7f4ef; color: var(--accent); border-color: #b9e0d3; }
+.status-conditional { background: #fff4e5; color: var(--warn); border-color: #f0d5a8; }
+.status-unverified { background: #fdeaea; color: #a11; border-color: #f0c0c0; }
+
 .demo-note {
   margin-top: 32px; padding: 12px 14px; border-radius: 10px;
   background: #fff8e6; border: 1px solid #f0d5a8; color: var(--warn);

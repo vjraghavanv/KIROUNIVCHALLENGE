@@ -98,5 +98,48 @@
     "lastVerified": "2026-09-01",
     "status": "unverified",
     "dataSource": "demo"
+  },
+  {
+    "serviceId": "street-light-complaint",
+    "name": { "en": "Street Light Complaint (DEMO)", "ta": "தெரு விளக்கு புகார் (மாதிரி)" },
+    "category": "civic-service",
+    "description": {
+      "en": "DEMO record. Report a non-working public street light to the local body. Placeholder content; verify the real channel officially.",
+      "ta": "மாதிரி பதிவு. வேலை செய்யாத பொது தெரு விளக்கை உள்ளாட்சிக்குத் தெரிவிக்கவும். மாதிரி உள்ளடக்கம்; உண்மையான வழியை அதிகாரப்பூர்வமாக சரிபார்க்கவும்."
+    },
+    "eligibility": [
+      { "en": "DEMO: Any resident may report a civic issue (placeholder).", "ta": "மாதிரி: எந்த குடியிருப்பாளரும் புகார் அளிக்கலாம் (மாதிரி)." }
+    ],
+    "documents": [
+      {
+        "id": "location-detail",
+        "name": { "en": "Location / pole reference", "ta": "இட / கம்ப குறிப்பு" },
+        "kind": "required",
+        "sourceRef": "demo-source"
+      },
+      {
+        "id": "photo",
+        "name": { "en": "Photo of the issue", "ta": "பிரச்சினையின் புகைப்படம்" },
+        "kind": "conditional",
+        "condition": { "en": "If requested by the local body", "ta": "உள்ளாட்சி கேட்டால்" },
+        "sourceRef": "demo-source"
+      }
+    ],
+    "steps": [
+      { "order": 1, "instruction": { "en": "DEMO: Note the pole/location reference.", "ta": "மாதிரி: கம்ப / இட குறிப்பைக் குறித்துக் கொள்ளவும்." }, "sourceRef": "demo-source" },
+      { "order": 2, "instruction": { "en": "DEMO: Submit the complaint through the local body channel.", "ta": "மாதிரி: உள்ளாட்சி வழியாக புகாரை சமர்ப்பிக்கவும்." }, "sourceRef": "demo-source" }
+    ],
+    "applicationChannels": [
+      { "type": "online", "label": { "en": "Demo civic portal", "ta": "மாதிரி குடிமை போர்டல்" }, "url": "https://example.com/demo" },
+      { "type": "offline", "label": { "en": "Demo local body office", "ta": "மாதிரி உள்ளாட்சி அலுவலகம்" } }
+    ],
+    "department": { "en": "Demo Local Body", "ta": "மாதிரி உள்ளாட்சி அமைப்பு" },
+    "officialSources": [
+      { "name": "Demo source (placeholder)", "url": "https://example.com/demo", "lastChecked": "2026-09-01", "verificationStatus": "conditional" }
+    ],
+    "faqs": [],
+    "lastVerified": "2026-09-01",
+    "status": "conditional",
+    "dataSource": "demo"
   }
 ]
