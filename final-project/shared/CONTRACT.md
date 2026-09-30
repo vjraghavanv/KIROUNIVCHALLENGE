@@ -57,6 +57,9 @@ ServiceRecord {
   lastVerified: string        # YYYY-MM-DD
   status: VerificationStatus
   dataSource: "demo" | "official"   # Phase 1 is always "demo"
+  aliases?: LocalizedText[]   # optional search keywords per language (Phase 3);
+                              # used only for discovery matching, not asserted as
+                              # official facts
 }
 ```
 

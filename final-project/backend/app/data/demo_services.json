@@ -56,7 +56,11 @@
     ],
     "lastVerified": "2026-09-01",
     "status": "unverified",
-    "dataSource": "demo"
+    "dataSource": "demo",
+    "aliases": [
+      { "en": "income certificate", "ta": "வருமான சான்றிதழ்" },
+      { "en": "income proof", "ta": "வருமான சான்று" }
+    ]
   },
   {
     "serviceId": "birth-certificate",
@@ -97,7 +101,10 @@
     "faqs": [],
     "lastVerified": "2026-09-01",
     "status": "unverified",
-    "dataSource": "demo"
+    "dataSource": "demo",
+    "aliases": [
+      { "en": "birth certificate", "ta": "பிறப்பு சான்றிதழ்" }
+    ]
   },
   {
     "serviceId": "street-light-complaint",
@@ -140,6 +147,10 @@
     "faqs": [],
     "lastVerified": "2026-09-01",
     "status": "conditional",
-    "dataSource": "demo"
+    "dataSource": "demo",
+    "aliases": [
+      { "en": "street light complaint", "ta": "தெரு விளக்கு புகார்" },
+      { "en": "broken street light", "ta": "தெரு விளக்கு வேலை செய்யவில்லை" }
+    ]
   }
 ]

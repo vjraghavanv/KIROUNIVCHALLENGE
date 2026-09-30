@@ -104,6 +104,9 @@ class ServiceRecord(BaseModel):
     last_verified: str = Field(alias="lastVerified")
     status: VerificationStatus
     data_source: DataSource = Field(default=DataSource.DEMO, alias="dataSource")
+    # Optional search aliases/keywords per language. Purely for discovery
+    # matching; these are not asserted as official facts.
+    aliases: list[LocalizedText] = Field(default_factory=list)
 
     model_config = {"populate_by_name": True}
 

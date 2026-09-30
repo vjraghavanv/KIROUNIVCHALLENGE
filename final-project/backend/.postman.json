@@ -23,16 +23,17 @@
       "uid": "",
       "name": "Namma Seva AI Backend Tests",
       "workspace": "namma-seva",
-      "description": "Covers /health, /categories, /services, /services/{id}, /discover, /checklist/evaluate per shared/CONTRACT.md.",
+      "description": "Covers /health, /categories, /services, /services/{id} (incl. new aliases field), /discover, /checklist/evaluate per shared/CONTRACT.md.",
       "requestCount": 10,
       "lastLocalTestRun": {
-        "runner": "curl (local, Postman MCP unavailable)",
+        "runner": "local contract runner (Postman MCP session unavailable: 'Session not found')",
         "baseUrl": "http://127.0.0.1:8000",
-        "totalTests": 10,
-        "passed": 10,
+        "totalTests": 21,
+        "passed": 21,
         "failed": 0,
         "errors": 0,
-        "successRate": "100%"
+        "successRate": "100%",
+        "notes": "Added assertions verifying the new ServiceRecord.aliases field is present on /services and /services/{id} responses."
       }
     }
   },

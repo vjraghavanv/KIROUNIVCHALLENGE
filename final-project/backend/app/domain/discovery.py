@@ -52,22 +52,40 @@ class NoMatch(BaseModel):
 DiscoveryResult = Union[ResolvedService, ClarificationRequest, NoMatch]
 
 
+# Common query words that carry no discriminating signal. Kept tiny and
+# language-balanced so Tamil and English phrasings normalize the same way.
+_STOPWORDS = {
+    # English
+    "i", "need", "a", "an", "the", "for", "to", "how", "do", "get", "my", "want",
+    "apply", "please", "help", "with", "of", "me",
+    # Tamil (function words / verbs of wanting/needing)
+    "எனக்கு", "வேண்டும்", "எப்படி", "பெற", "செய்ய", "வேண்டி", "ஒரு", "என்",
+}
+
+
+def _tokens(term: str) -> list[str]:
+    return [tok for tok in term.strip().lower().split() if tok and tok not in _STOPWORDS]
+
+
 def _score(record: ServiceRecord, term: str) -> float:
-    """Field-weighted match score in [0, 1]. Name > category > description."""
-    t = term.strip().lower()
-    if not t:
-        return 0.0
-    tokens = [tok for tok in t.split() if tok]
+    """Field-weighted match score in [0, 1]. Name/alias > category > description.
+
+    Matches over both `en` and `ta` text so that equivalent queries in either
+    language converge to the same record (language-invariant resolution).
+    """
+    tokens = _tokens(term)
     if not tokens:
         return 0.0
 
     name = f"{record.name.en} {record.name.ta}".lower()
+    aliases = " ".join(f"{a.en} {a.ta}" for a in record.aliases).lower()
     desc = f"{record.description.en} {record.description.ta}".lower()
     category = record.category.value.lower()
+    name_and_aliases = f"{name} {aliases}"
 
     hits = 0.0
     for tok in tokens:
-        if tok in name:
+        if tok in name_and_aliases:
             hits += 1.0
         elif tok in category:
             hits += 0.6

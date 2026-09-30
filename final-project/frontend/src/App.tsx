@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { discover, getService } from "./api";
-import { UI, pick } from "./i18n";
+import { UI, pick, loadLang, saveLang } from "./i18n";
 import type { DiscoveryResult, Lang, ServiceRecord } from "./types";
 import { ServiceDetail } from "./ServiceDetail";
 
@@ -9,7 +9,12 @@ type View =
   | { screen: "detail"; service: ServiceRecord };
 
 export function App() {
-  const [lang, setLang] = useState<Lang>("en");
+  const [lang, setLangState] = useState<Lang>(loadLang);
+
+  function setLang(next: Lang) {
+    setLangState(next);
+    saveLang(next);
+  }
   const [query, setQuery] = useState("");
   const [result, setResult] = useState<DiscoveryResult | null>(null);
   const [view, setView] = useState<View>({ screen: "search" });

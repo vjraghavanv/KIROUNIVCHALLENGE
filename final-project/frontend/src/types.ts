@@ -69,6 +69,7 @@ export interface ServiceRecord {
   lastVerified: string;
   status: VerificationStatus;
   dataSource: DataSource;
+  aliases?: LocalizedText[];
 }
 
 export type DiscoveryResult =

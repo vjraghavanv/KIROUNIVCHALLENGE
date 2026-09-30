@@ -35,6 +35,26 @@ export const UI = {
   },
 } as const;
 
+const LANG_KEY = "nsa.lang";
+
+export function loadLang(): Lang {
+  try {
+    const saved = localStorage.getItem(LANG_KEY);
+    if (saved === "ta" || saved === "en") return saved;
+  } catch {
+    // localStorage may be unavailable; fall back to default.
+  }
+  return "en"; // default per multilingual-assistant spec
+}
+
+export function saveLang(lang: Lang): void {
+  try {
+    localStorage.setItem(LANG_KEY, lang);
+  } catch {
+    // Non-fatal: persistence is best-effort.
+  }
+}
+
 export function pick(text: LocalizedText, lang: Lang): string {
   const value = lang === "ta" ? text.ta : text.en;
   if (value && value.trim().length > 0) return value;
