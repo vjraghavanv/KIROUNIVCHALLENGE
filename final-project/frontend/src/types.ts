@@ -91,3 +91,20 @@ export interface ReadinessResult {
   applicableConditionalMissing: DocumentRequirement[];
   reasons: string[];
 }
+
+export interface GroundedResponse {
+  kind: "answer" | "clarification" | "no-match";
+  grounded: boolean;
+  answer: LocalizedText;
+  language: Lang;
+  serviceId?: string;
+  serviceName?: LocalizedText;
+  documents: DocumentRequirement[];
+  steps: Step[];
+  sources: Source[];
+  verificationStatus?: VerificationStatus;
+  isVerified: boolean;
+  citedSourceRefs: string[];
+  clarificationOptions: { serviceId: string; label: LocalizedText }[];
+  notice: LocalizedText;
+}

@@ -39,6 +39,14 @@ body { margin: 0; background: var(--bg); color: var(--ink); }
   background: var(--accent); color: #fff; cursor: pointer;
 }
 
+.searchbar .ask-btn { background: #12507a; }
+
+.answer-card {
+  background: var(--card); border: 1px solid var(--line); border-radius: 12px;
+  padding: 16px 18px; margin-top: 12px;
+}
+.answer-card h2 { margin-top: 0; border: none; padding: 0; font-size: 1.15rem; }
+
 .results { margin-top: 8px; }
 .result-card {
   display: flex; flex-direction: column; gap: 6px; text-align: left; width: 100%;

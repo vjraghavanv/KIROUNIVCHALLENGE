@@ -9,8 +9,10 @@ from fastapi import FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 
+from app.ai.provider import get_provider
 from app.domain.discovery import DiscoveryResult, discover
 from app.domain.models import ReadinessResult, ServiceCategory, ServiceRecord
+from app.domain.rag_assistant import GroundedResponse, ask
 from app.domain.readiness import evaluate_readiness
 from app.knowledge.knowledge_base import KnowledgeBase
 
@@ -25,9 +27,15 @@ app.add_middleware(
 )
 
 kb = KnowledgeBase.load()
+provider = get_provider()
 
 
 class DiscoverRequest(BaseModel):
+    query: str
+    language: str = "en"
+
+
+class AskRequest(BaseModel):
     query: str
     language: str = "en"
 
@@ -48,6 +56,11 @@ def health() -> dict[str, str]:
 @app.post("/discover", response_model=DiscoveryResult)
 def post_discover(req: DiscoverRequest) -> DiscoveryResult:
     return discover(kb, req.query, req.language)
+
+
+@app.post("/ask", response_model=GroundedResponse)
+def post_ask(req: AskRequest) -> GroundedResponse:
+    return ask(kb, provider, req.query, req.language)
 
 
 @app.get("/categories", response_model=list[ServiceCategory])

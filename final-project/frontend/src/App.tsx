@@ -1,7 +1,7 @@
 import { useState } from "react";
-import { discover, getService } from "./api";
+import { ask, discover, getService } from "./api";
 import { UI, pick, loadLang, saveLang } from "./i18n";
-import type { DiscoveryResult, Lang, ServiceRecord } from "./types";
+import type { DiscoveryResult, GroundedResponse, Lang, ServiceRecord } from "./types";
 import { ServiceDetail } from "./ServiceDetail";
 
 type View =
@@ -17,6 +17,7 @@ export function App() {
   }
   const [query, setQuery] = useState("");
   const [result, setResult] = useState<DiscoveryResult | null>(null);
+  const [answer, setAnswer] = useState<GroundedResponse | null>(null);
   const [view, setView] = useState<View>({ screen: "search" });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -26,9 +27,25 @@ export function App() {
     setError(null);
     setLoading(true);
     setResult(null);
+    setAnswer(null);
     try {
       const r = await discover(query, lang);
       setResult(r);
+    } catch {
+      setError("Could not reach the service. Is the backend running?");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function onAsk() {
+    setError(null);
+    setLoading(true);
+    setResult(null);
+    setAnswer(null);
+    try {
+      const a = await ask(query, lang);
+      setAnswer(a);
     } catch {
       setError("Could not reach the service. Is the backend running?");
     } finally {
@@ -95,9 +112,56 @@ export function App() {
         <button type="submit" disabled={loading}>
           {loading ? "…" : UI.search[lang]}
         </button>
+        <button type="button" className="ask-btn" onClick={onAsk} disabled={loading || !query.trim()}>
+          {UI.ask[lang]}
+        </button>
       </form>
 
       {error && <p className="error" role="alert">{error}</p>}
+
+      {answer && (
+        <section className="answer-card" aria-live="polite">
+          <h2>{UI.answer[lang]}</h2>
+          {answer.grounded ? (
+            <p>{pick(answer.answer, lang)}</p>
+          ) : (
+            <p className="muted">{pick(answer.answer, lang)}</p>
+          )}
+
+          {answer.serviceId && answer.serviceName && (
+            <p>
+              <strong>{pick(answer.serviceName, lang)}</strong>{" "}
+              {answer.verificationStatus && (
+                <span className={`badge status-${answer.verificationStatus}`}>
+                  {UI.verificationStatus[lang]}:{" "}
+                  {answer.verificationStatus === "verified"
+                    ? UI.statusVerified[lang]
+                    : answer.verificationStatus === "conditional"
+                      ? UI.statusConditional[lang]
+                      : UI.statusUnverified[lang]}
+                </span>
+              )}
+            </p>
+          )}
+
+          {answer.citedSourceRefs.length > 0 && (
+            <p className="muted">
+              {UI.citedSources[lang]}: {answer.citedSourceRefs.join(", ")}
+            </p>
+          )}
+
+          {answer.serviceId && (
+            <button
+              className="link"
+              onClick={() => answer.serviceId && openService(answer.serviceId)}
+            >
+              {UI.viewFullService[lang]} →
+            </button>
+          )}
+
+          <p className="demo-note">{pick(answer.notice, lang)}</p>
+        </section>
+      )}
 
       {result && (
         <section className="results" aria-live="polite">

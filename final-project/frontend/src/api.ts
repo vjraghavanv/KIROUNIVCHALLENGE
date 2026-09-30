@@ -2,6 +2,7 @@
 
 import type {
   DiscoveryResult,
+  GroundedResponse,
   Lang,
   ReadinessResult,
   ServiceRecord,
@@ -23,6 +24,15 @@ export async function discover(query: string, language: Lang): Promise<Discovery
     body: JSON.stringify({ query, language }),
   });
   return json<DiscoveryResult>(res);
+}
+
+export async function ask(query: string, language: Lang): Promise<GroundedResponse> {
+  const res = await fetch(`${BASE}/ask`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ query, language }),
+  });
+  return json<GroundedResponse>(res);
 }
 
 export async function getService(serviceId: string): Promise<ServiceRecord> {

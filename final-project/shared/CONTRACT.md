@@ -93,6 +93,32 @@ ReadinessResult {
 | GET  | `/services/{serviceId}` | — | `ServiceRecord` or 404 |
 | GET  | `/categories` | — | `ServiceCategory[]` |
 | POST | `/checklist/evaluate` | `{ serviceId: string; held: string[]; conditionAnswers: {[docId]: bool} }` | `ReadinessResult` |
+| POST | `/ask` | `{ query: string; language: Lang }` | `GroundedResponse` (Phase 4) |
+
+## GroundedResponse (Phase 4 — RAG assistant)
+
+Additive; existing endpoints unchanged. A grounded answer, or a safe fallback
+when retrieval is not confident. `grounded=false` means no source-backed answer
+was produced (clarification or unavailable) — the UI must not present it as fact.
+
+```
+GroundedResponse {
+  kind: "answer" | "clarification" | "no-match"
+  grounded: boolean
+  answer: LocalizedText
+  language: Lang
+  serviceId?: string
+  serviceName?: LocalizedText
+  documents: DocumentRequirement[]
+  steps: Step[]
+  sources: Source[]
+  verificationStatus?: VerificationStatus
+  isVerified: boolean            # true only if VERIFIED + sourced + fresh
+  citedSourceRefs: string[]      # always a subset of the retrieved record's sources
+  clarificationOptions: { serviceId: string; label: LocalizedText }[]
+  notice: LocalizedText          # "informational assistant" safety notice
+}
+```
 
 All responses are JSON. Missing fields on a record are represented by absence;
 the UI renders the "not available" phrase per `ai-rag.md`. No endpoint fabricates
