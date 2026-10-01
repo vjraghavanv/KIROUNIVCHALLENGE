@@ -26,14 +26,14 @@
       "description": "Covers /health, /categories, /services, /services/{id} (incl. aliases field), /discover, /ask (provider path), /checklist/evaluate per shared/CONTRACT.md.",
       "requestCount": 11,
       "lastLocalTestRun": {
-        "runner": "local contract runner (Postman MCP session unavailable: 'Session not found')",
-        "baseUrl": "http://127.0.0.1:8010",
-        "totalTests": 30,
-        "passed": 30,
+        "runner": "local contract runner (Postman MCP cloud API unavailable: 401 Invalid API Key)",
+        "baseUrl": "http://127.0.0.1:8020",
+        "totalTests": 24,
+        "passed": 24,
         "failed": 0,
         "errors": 0,
         "successRate": "100%",
-        "notes": "Ran after app/ai/provider.py edit (get_provider + BedrockProvider boundary + MockProvider refactor). Added /ask assertions (en + ta) exercising the provider path, plus existing ServiceRecord.aliases checks on /services and /services/{id}. NOTE: a stale server was running on :8000 without the new /ask route; ran current code on :8010 for accurate results."
+        "notes": "Ran after frontend/src/i18n.ts edit (added seniorMode + loading strings). Postman cloud create/run was not possible (no valid API key -> 401), so the 11 collection requests in shared/CONTRACT.md were exercised locally with 24 assertions covering /health, /categories, /services (incl. aliases + category filter), /services/{id} (incl. 404), /discover (en+ta), /ask (en+ta provider path), and /checklist/evaluate. NOTE: a stale server on :8000 lacked the /ask route (returns 404); the current code was run on :8020 for accurate results."
       }
     }
   },
