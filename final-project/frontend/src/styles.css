@@ -96,3 +96,40 @@ h2 { margin-top: 28px; border-bottom: 1px solid var(--line); padding-bottom: 6px
 }
 
 :focus-visible { outline: 3px solid #1769aa; outline-offset: 2px; }
+
+/* ---- Senior-Friendly / Accessibility Mode ---- */
+/* Presentation-only: larger type and controls, reduced density. Trust cues
+   (sources, verification badges) remain visible — only simplified. */
+body.senior-mode {
+  font-size: 1.25rem;
+  line-height: 1.7;
+}
+body.senior-mode .page { max-width: 820px; padding: 32px 24px 64px; }
+body.senior-mode h1 { font-size: 2.6rem; }
+body.senior-mode h2 { font-size: 1.6rem; }
+body.senior-mode .searchbar input { font-size: 1.3rem; padding: 18px 20px; }
+body.senior-mode .searchbar button,
+body.senior-mode .chip,
+body.senior-mode .result-card,
+body.senior-mode .senior-toggle {
+  font-size: 1.25rem;
+  min-height: 56px;      /* larger touch targets */
+  padding: 14px 22px;
+}
+body.senior-mode .doc-list li,
+body.senior-mode .step-list li,
+body.senior-mode .channel-list li,
+body.senior-mode .source-list li {
+  padding: 14px 0;       /* more spacing / lower density */
+}
+body.senior-mode .demo-note { font-size: 1.1rem; }
+/* Senior mode emphasizes the primary action and quiets secondary chrome. */
+body.senior-mode .ask-btn { font-weight: 700; }
+
+.senior-toggle {
+  border: 1px solid var(--line); background: var(--card); color: var(--ink);
+  border-radius: 999px; padding: 6px 14px; cursor: pointer; font-size: 0.95rem;
+}
+.senior-toggle[aria-pressed="true"] {
+  background: var(--accent); color: #fff; border-color: var(--accent);
+}

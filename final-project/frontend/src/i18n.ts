@@ -28,6 +28,8 @@ export const UI = {
     en: "Not enough official information to answer confidently.",
     ta: "நம்பிக்கையுடன் பதிலளிக்க போதுமான அதிகாரப்பூர்வ தகவல் இல்லை.",
   },
+  seniorMode: { en: "Senior-friendly mode", ta: "மூத்தோர் பயன்முறை" },
+  loading: { en: "Loading…", ta: "ஏற்றுகிறது…" },
   back: { en: "Back", ta: "பின்செல்" },
   noMatch: { en: "No confident match.", ta: "உறுதியான பொருத்தம் இல்லை." },
   required: { en: "Required", ta: "தேவை" },
@@ -45,14 +47,23 @@ export const UI = {
 
 const LANG_KEY = "nsa.lang";
 
-export function loadLang(): Lang {
+export function hasSavedLang(): boolean {
+  try {
+    const saved = localStorage.getItem(LANG_KEY);
+    return saved === "ta" || saved === "en";
+  } catch {
+    return false;
+  }
+}
+
+export function loadLang(fallback: Lang = "en"): Lang {
   try {
     const saved = localStorage.getItem(LANG_KEY);
     if (saved === "ta" || saved === "en") return saved;
   } catch {
     // localStorage may be unavailable; fall back to default.
   }
-  return "en"; // default per multilingual-assistant spec
+  return fallback; // default per multilingual-assistant spec (en), senior mode -> ta
 }
 
 export function saveLang(lang: Lang): void {

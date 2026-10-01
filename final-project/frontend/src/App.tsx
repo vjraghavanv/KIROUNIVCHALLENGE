@@ -1,15 +1,21 @@
 import { useState } from "react";
 import { ask, discover, getService } from "./api";
-import { UI, pick, loadLang, saveLang } from "./i18n";
+import { UI, pick, loadLang, saveLang, hasSavedLang } from "./i18n";
 import type { DiscoveryResult, GroundedResponse, Lang, ServiceRecord } from "./types";
 import { ServiceDetail } from "./ServiceDetail";
+import { useAccessibility } from "./accessibility";
 
 type View =
   | { screen: "search" }
   | { screen: "detail"; service: ServiceRecord };
 
 export function App() {
-  const [lang, setLangState] = useState<Lang>(loadLang);
+  const { seniorMode, toggleSeniorMode } = useAccessibility();
+  // Senior mode is Tamil-first (spec Req 1.2) when the user hasn't chosen a
+  // language explicitly; an explicit choice always wins.
+  const [lang, setLangState] = useState<Lang>(() =>
+    hasSavedLang() ? loadLang() : loadLang(seniorMode ? "ta" : "en")
+  );
 
   function setLang(next: Lang) {
     setLangState(next);
@@ -94,6 +100,14 @@ export function App() {
           >
             தமிழ்
           </button>
+          <button
+            type="button"
+            className="senior-toggle"
+            onClick={toggleSeniorMode}
+            aria-pressed={seniorMode}
+          >
+            {UI.seniorMode[lang]}
+          </button>
         </div>
         <h1>{UI.appName[lang]}</h1>
         <p className="tagline">{UI.tagline[lang]}</p>
@@ -118,6 +132,10 @@ export function App() {
       </form>
 
       {error && <p className="error" role="alert">{error}</p>}
+
+      <div aria-live="polite" className="visually-hidden">
+        {loading ? UI.loading[lang] : ""}
+      </div>
 
       {answer && (
         <section className="answer-card" aria-live="polite">
