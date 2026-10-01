@@ -27,9 +27,11 @@ The project lives under `final-project/` and is being built with Kiro. The Kiro
 planning foundation (Specs + Steering) is in place. **Phase 1** (the first
 working vertical slice), **Phase 2** (the Official Knowledge Base: strengthened
 validation and source verification), **Phase 3** (the Multilingual Assistant:
-language-invariant Tamil/English discovery), and **Phase 4** (the grounded RAG
+language-invariant Tamil/English discovery), **Phase 4** (the grounded RAG
 assistant: a `/ask` pipeline with source-grounded answers and a provider
-abstraction) have been implemented and tested.
+abstraction), and **Phase 5** (Accessibility & Senior Mode: a Tamil-first,
+large-control, screen-reader-friendly experience) have been implemented and
+tested.
 
 ### Status
 
@@ -46,6 +48,11 @@ abstraction) have been implemented and tested.
   grounds answers strictly in the retrieved record, verifies sources, and safely
   declines when it cannot ground an answer — behind a MockProvider/BedrockProvider
   abstraction that never requires live AWS.
+- Phase 5 implemented: an Accessibility & Senior Mode presentation layer — a
+  session-persisted, Tamil-first, large-control senior mode that reduces density
+  and emphasizes the primary action, with keyboard/screen-reader support,
+  non-color status cues, and accessible loading/empty/error states. It changes
+  how content is shown, never the underlying facts.
 - All service data is clearly-marked **demo/mock** data; no real government
   requirements are asserted yet.
 - Backend tests: **65/65 passing** (integration + validation + source-verification
@@ -168,6 +175,34 @@ citing only the retrieved record's source; a gibberish query returns a safe
 no-match. Verified by live API check and property-based tests (an answer never
 cites an un-retrieved source; ungrounded content is never marked verified).
 
+### Phase 5 implementation (Accessibility & Senior Mode)
+
+Phase 5 adds a cross-cutting presentation layer that makes the app usable by
+older citizens, users with low digital literacy, and users of assistive
+technology. It changes **how** content is shown, never **what** the facts are —
+service ids, documents, steps, sources, and verification status are untouched.
+
+- **Accessibility context** (`frontend/src/accessibility.tsx`): an
+  `AccessibilityProvider` holds a `seniorMode` flag, persists it in
+  `sessionStorage` (best-effort, non-fatal on failure), and reflects it on
+  `<body>` so global CSS can scale type, controls, and density. Senior mode is
+  Tamil-first (`defaultLang = "ta"`), while normal mode defaults to English.
+- **Senior-mode styling** (`frontend/src/styles.css`): larger text and controls,
+  reduced density, and an emphasized primary action when `senior-mode` is active,
+  with a visible focus indicator and WCAG-AA-oriented contrast.
+- **Non-color status cues**: readiness and verification status are conveyed by
+  text/icon in addition to color, so meaning never depends on color alone.
+- **Wiring** (`frontend/src/App.tsx`, `main.tsx`, `i18n.ts`): the provider wraps
+  the app, a toggle switches senior mode without losing the current context, and
+  the Tamil/English selection continues to persist.
+- **Tests** (`frontend/src/test/`): `accessibility.test.tsx` and `App.test.tsx`
+  with a Vitest/jsdom `setup.ts`, covering the toggle, persistence, Tamil-first
+  default, and that facts are preserved across modes.
+
+This phase is frontend-only; the backend, the Provider abstraction, and the HTTP
+API contract are unchanged. Automated checks are not a substitute for full WCAG
+certification or a manual screen-reader audit.
+
 ### Kiro Specs — Lesson 1 (`final-project/.kiro/specs/`)
 
 Each spec contains `requirements.md` (EARS-style, testable acceptance criteria,
@@ -222,11 +257,26 @@ integration testing called out).
 | Lesson 4 — Property-Based Testing | Readiness, knowledge/verification, multilingual, and RAG-grounding invariants (Hypothesis) | `final-project/backend/tests/test_readiness_properties.py`, `test_knowledge_properties.py`, `test_multilingual_properties.py`, `test_rag_properties.py` |
 | Lesson 5 — Powers | Namma Seva Government Services Power (planned) | `final-project/namma-seva-power/` |
 | Lesson 6 — MCP | AWS/Bedrock docs + fetch during development (planned) | `final-project/.kiro/settings/mcp.json` |
-| Lesson 7 — Custom Agents | Purpose-built domain agents (planned) | `final-project/.kiro/agents/` |
+| Lesson 7 — Custom Agents* | `web-tester` custom agent driving Playwright MCP, with a recorded live run | `kiro-university-lesson-7/.kiro/agents/web-tester.json`, `kiro-university-lesson-7/results/example-domain-test.md` |
 
-Note: Lessons 1 and 2 have real artifacts today (the specs and steering above),
-and Lesson 4 has real property-based tests across the Phase 1–4 backend
-(readiness, knowledge/verification, multilingual, and RAG-grounding invariants).
-Lessons 3, 5, 6, and 7 are designed and mapped but not yet implemented; the table
-marks those as planned and their evidence locations will be populated as the
-build proceeds.
+Note on where lesson evidence lives. All seven required lessons have concrete,
+completed artifacts in the top-level `kiro-university-lesson-1/` … `-7/`
+directories (summarized in the **Lessons** section at the top of this README):
+specs, steering, a format-on-save hook, fast-check property tests, a Postman API
+test run, an MCP configuration, and the `web-tester` custom agent with a recorded
+live run. That is the evidence scored for the challenge.
+
+The table above instead describes an **optional, in-progress effort to also
+re-demonstrate each lesson inside `final-project/`** (its own specs, steering,
+hooks, powers, MCP config, and agents). Lessons 1, 2, and 4 already have real
+final-project artifacts (the specs and steering above, plus property-based tests
+across the Phase 1–5 backend). The final-project versions of Lessons 3, 5, 6, and
+7 (`final-project/.kiro/hooks/`, `final-project/namma-seva-power/`,
+`final-project/.kiro/settings/mcp.json`, `final-project/.kiro/agents/`) are mapped
+but not yet implemented; those paths will be populated as the build proceeds.
+
+*Lesson 7 is labelled "Custom Agents" per the daily challenge lessons as followed
+during the build. The official Kiro University lesson topics are posted on Kiro's
+social channels and Discord rather than on a single public kiro.dev syllabus page,
+so this label reflects the author's build-along notes; the custom-agent capability
+itself is documented at https://kiro.dev/docs/custom-agents/.
