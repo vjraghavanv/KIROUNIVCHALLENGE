@@ -108,7 +108,14 @@ abstraction, or the API contract.
 - **Small demo dataset** (`backend/app/data/demo_services.json`): three
   clearly-marked demo services — `income-certificate` (unverified),
   `birth-certificate` (unverified), and `street-light-complaint` (civic-service,
-  conditional). No real government facts, fees, URLs, or procedures are invented.
+  conditional). The service facts, fees, documents, and procedures remain
+  placeholder demo content and are not invented as official. The referenced
+  source now points at the real Tamil Nadu e-Sevai citizen portal
+  (`https://www.tnesevai.tn.gov.in/citizen/`, labelled "Tamil Nadu e-Sevai
+  (TN eSevai) citizen portal") instead of a placeholder URL, but this is only a
+  pointer to the official portal — it does **not** mean the demo records have
+  been verified against it. Each record stays `unverified`/`conditional` and
+  marked `dataSource: "demo"`; nothing was upgraded to verified.
 - **Frontend** (`ServiceDetail`): shows a verification badge as text plus status
   (not color alone), the record's last-verified date, and each source's
   last-checked date.
