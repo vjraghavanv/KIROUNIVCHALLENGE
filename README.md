@@ -175,33 +175,64 @@ citing only the retrieved record's source; a gibberish query returns a safe
 no-match. Verified by live API check and property-based tests (an answer never
 cites an un-retrieved source; ungrounded content is never marked verified).
 
-### Phase 5 implementation (Accessibility & Senior Mode)
+### Phase 5 — Senior-Friendly Accessibility Mode
 
-Phase 5 adds a cross-cutting presentation layer that makes the app usable by
-older citizens, users with low digital literacy, and users of assistive
-technology. It changes **how** content is shown, never **what** the facts are —
-service ids, documents, steps, sources, and verification status are untouched.
+Phase 5 adds a cross-cutting, senior-friendly accessibility layer that makes the
+app easier to use for older citizens, people with low digital literacy, and users
+of assistive technology. It is presentation-only: it changes **how** content is
+shown, never **what** the facts are — service ids, documents, steps, sources, and
+verification status are untouched.
 
-- **Accessibility context** (`frontend/src/accessibility.tsx`): an
-  `AccessibilityProvider` holds a `seniorMode` flag, persists it in
-  `sessionStorage` (best-effort, non-fatal on failure), and reflects it on
-  `<body>` so global CSS can scale type, controls, and density. Senior mode is
-  Tamil-first (`defaultLang = "ta"`), while normal mode defaults to English.
-- **Senior-mode styling** (`frontend/src/styles.css`): larger text and controls,
-  reduced density, and an emphasized primary action when `senior-mode` is active,
-  with a visible focus indicator and WCAG-AA-oriented contrast.
-- **Non-color status cues**: readiness and verification status are conveyed by
-  text/icon in addition to color, so meaning never depends on color alone.
-- **Wiring** (`frontend/src/App.tsx`, `main.tsx`, `i18n.ts`): the provider wraps
-  the app, a toggle switches senior mode without losing the current context, and
-  the Tamil/English selection continues to persist.
-- **Tests** (`frontend/src/test/`): `accessibility.test.tsx` and `App.test.tsx`
-  with a Vitest/jsdom `setup.ts`, covering the toggle, persistence, Tamil-first
-  default, and that facts are preserved across modes.
+Implemented functionality (all in the frontend):
+
+- **Senior-friendly mode** toggled from the header, built on an
+  `AccessibilityProvider` (`frontend/src/accessibility.tsx`) that reflects the
+  mode on `<body>` so global CSS can respond.
+- **Larger typography and controls** in senior mode (`frontend/src/styles.css`):
+  increased base font size and line height, larger headings, and larger search
+  input and buttons.
+- **Minimum 56px touch targets** for the primary controls (search/ask buttons,
+  language chips, result cards, and the senior-mode toggle) via
+  `min-height: 56px` in senior mode.
+- **Reduced visual density** in senior mode: wider spacing on document, step,
+  channel, and source lists, and a roomier page container.
+- **Tamil-first behavior** when senior mode is enabled and the user has not
+  explicitly saved a language: the UI defaults to Tamil (`defaultLang = "ta"`).
+  An explicit language choice always wins and is respected.
+- **Session persistence** of the senior-mode preference via `sessionStorage`
+  (best-effort; failures are non-fatal), restored on reload.
+- **Semantic buttons**: interactive controls are real `<button>` elements rather
+  than click-handling `<div>`s.
+- **`aria-pressed` support** on the senior-mode toggle and the language chips, so
+  their on/off state is exposed to assistive technology.
+- **Visible keyboard focus states** via a `:focus-visible` outline, so
+  keyboard users can see where focus is.
+- **`aria-live` loading/status announcements**: a polite live region announces
+  the loading state, and the answer/results regions are `aria-live="polite"`.
+- **Plain-language error/empty states**: errors render in a `role="alert"`
+  region with plain-language messages (e.g. "Could not reach the service. Is the
+  backend running?"), and no-match returns a clear message rather than a silent
+  failure.
+- **Non-color status cues**: verification and readiness status always include a
+  text label (verified / conditional / unverified) in addition to color, so
+  meaning never depends on color alone.
+- **Preservation of source/trust information**: official sources, cited source
+  references, verification badges, and the demo/informational notice stay visible
+  and legible in senior mode — density is reduced, trust cues are not removed.
+- **Frontend accessibility tests** (`frontend/src/test/`): `accessibility.test.tsx`
+  and `App.test.tsx` (with a Vitest/jsdom `setup.ts`) cover the senior-mode
+  toggle, session persistence, Tamil-first default, English-first normal mode,
+  the localized toggle label, and `aria-pressed` state transitions.
 
 This phase is frontend-only; the backend, the Provider abstraction, and the HTTP
-API contract are unchanged. Automated checks are not a substitute for full WCAG
-certification or a manual screen-reader audit.
+API contract are unchanged.
+
+**Scope note (honest limitations):** these are practical accessibility
+improvements validated by the frontend tests above. They are **not** a claim of
+full WCAG certification, and the project does **not** include automated axe-core
+audits or a completed screen-reader certification. A full manual screen-reader
+pass and formal WCAG conformance review would still be required before claiming
+compliance.
 
 ### Kiro Specs — Lesson 1 (`final-project/.kiro/specs/`)
 
@@ -247,36 +278,42 @@ integration testing called out).
 - `ai-rag.md` — retrieval-grounding pipeline, provider abstraction, citations,
   hallucination prevention, and required uncertainty phrasing.
 
-### Seven-lesson mapping (planned)
+### Seven-lesson mapping
 
-| Lesson | Implementation in Namma Seva AI | Evidence location |
+**The seven required Kiro University lessons are already completed, each with
+concrete evidence** in its own top-level directory (summarized in the
+**Lessons** section at the top of this README). This is the evidence scored for
+the challenge:
+
+| Lesson | Completed evidence | Evidence location |
 | --- | --- | --- |
-| Lesson 1 — Specs | 8 feature specs driving the build | `final-project/.kiro/specs/` |
-| Lesson 2 — Steering | 8 steering documents | `final-project/.kiro/steering/` |
-| Lesson 3 — Hooks | Frontend / backend / knowledge / security hooks (planned) | `final-project/.kiro/hooks/` |
-| Lesson 4 — Property-Based Testing | Readiness, knowledge/verification, multilingual, and RAG-grounding invariants (Hypothesis) | `final-project/backend/tests/test_readiness_properties.py`, `test_knowledge_properties.py`, `test_multilingual_properties.py`, `test_rag_properties.py` |
-| Lesson 5 — Powers | Namma Seva Government Services Power (planned) | `final-project/namma-seva-power/` |
-| Lesson 6 — MCP | AWS/Bedrock docs + fetch during development (planned) | `final-project/.kiro/settings/mcp.json` |
-| Lesson 7 — Custom Agents* | `web-tester` custom agent driving Playwright MCP, with a recorded live run | `kiro-university-lesson-7/.kiro/agents/web-tester.json`, `kiro-university-lesson-7/results/example-domain-test.md` |
+| Lesson 1 — Specs | Todo feature spec (requirements, design, tasks) | `kiro-university-lesson-1/` |
+| Lesson 2 — Steering | TypeScript coding-standards steering file | `kiro-university-lesson-2/` |
+| Lesson 3 — Hooks | Format-TypeScript-on-save hook | `kiro-university-lesson-3/` |
+| Lesson 4 — Property-Based Testing | `addTask` property test with fast-check | `kiro-university-lesson-4/` |
+| Lesson 5 — Powers | Postman API test run (5/5 assertions passed) | `kiro-university-lesson-5/` |
+| Lesson 6 — MCP | `fetch` + `playwright` MCP servers, used live | `kiro-university-lesson-6/` |
+| Lesson 7 — Custom Agents* | `web-tester` custom agent driving Playwright MCP, with a recorded live run | `kiro-university-lesson-7/` |
 
-Note on where lesson evidence lives. All seven required lessons have concrete,
-completed artifacts in the top-level `kiro-university-lesson-1/` … `-7/`
-directories (summarized in the **Lessons** section at the top of this README):
-specs, steering, a format-on-save hook, fast-check property tests, a Postman API
-test run, an MCP configuration, and the `web-tester` custom agent with a recorded
-live run. That is the evidence scored for the challenge.
+*Lesson 7 — Custom Agents (based on the project's build-along lesson notes and
+repository evidence; the public Kiro University landing/terms pages do not
+publish a per-lesson title list). The custom-agent capability itself is
+documented at https://kiro.dev/docs/custom-agents/.
 
-The table above instead describes an **optional, in-progress effort to also
-re-demonstrate each lesson inside `final-project/`** (its own specs, steering,
-hooks, powers, MCP config, and agents). Lessons 1, 2, and 4 already have real
-final-project artifacts (the specs and steering above, plus property-based tests
-across the Phase 1–5 backend). The final-project versions of Lessons 3, 5, 6, and
-7 (`final-project/.kiro/hooks/`, `final-project/namma-seva-power/`,
-`final-project/.kiro/settings/mcp.json`, `final-project/.kiro/agents/`) are mapped
-but not yet implemented; those paths will be populated as the build proceeds.
+#### Optional: re-demonstrating lessons inside the final project
 
-*Lesson 7 is labelled "Custom Agents" per the daily challenge lessons as followed
-during the build. The official Kiro University lesson topics are posted on Kiro's
-social channels and Discord rather than on a single public kiro.dev syllabus page,
-so this label reflects the author's build-along notes; the custom-agent capability
-itself is documented at https://kiro.dev/docs/custom-agents/.
+Separately from the completed lesson evidence above, there is an **optional,
+in-progress effort to also re-demonstrate some of those lesson mechanisms inside
+the Namma Seva AI `final-project/` directory**. This is an enhancement, not a
+requirement — "planned" below refers only to this optional re-implementation, not
+to the required lessons, which are already complete.
+
+| Lesson | Re-implementation in Namma Seva AI | Status | Location |
+| --- | --- | --- | --- |
+| Lesson 1 — Specs | 8 feature specs driving the build | Done | `final-project/.kiro/specs/` |
+| Lesson 2 — Steering | 8 steering documents | Done | `final-project/.kiro/steering/` |
+| Lesson 4 — Property-Based Testing | Readiness, knowledge/verification, multilingual, and RAG-grounding invariants (Hypothesis) | Done | `final-project/backend/tests/test_readiness_properties.py`, `test_knowledge_properties.py`, `test_multilingual_properties.py`, `test_rag_properties.py` |
+| Lesson 3 — Hooks | Frontend / backend / knowledge / security hooks | Planned (optional) | `final-project/.kiro/hooks/` |
+| Lesson 5 — Powers | Namma Seva Government Services Power | Planned (optional) | `final-project/namma-seva-power/` |
+| Lesson 6 — MCP | AWS/Bedrock docs + fetch during development | Planned (optional) | `final-project/.kiro/settings/mcp.json` |
+| Lesson 7 — Custom Agents | Purpose-built domain agents | Planned (optional) | `final-project/.kiro/agents/` |

@@ -44,12 +44,12 @@
       { "order": 3, "instruction": { "en": "DEMO: Track the application and collect the certificate.", "ta": "மாதிரி: விண்ணப்பத்தைக் கண்காணித்து சான்றிதழைப் பெறவும்." }, "sourceRef": "demo-source" }
     ],
     "applicationChannels": [
-      { "type": "online", "label": { "en": "Demo online portal", "ta": "மாதிரி ஆன்லைன் போர்டல்" }, "url": "https://example.com/demo" },
+      { "type": "online", "label": { "en": "Demo online portal", "ta": "மாதிரி ஆன்லைன் போர்டல்" }, "url": "https://www.tnesevai.tn.gov.in/citizen/" },
       { "type": "offline", "label": { "en": "Demo local office", "ta": "மாதிரி உள்ளூர் அலுவலகம்" } }
     ],
     "department": { "en": "Demo Revenue Department", "ta": "மாதிரி வருவாய்த் துறை" },
     "officialSources": [
-      { "name": "Demo source (placeholder)", "url": "https://example.com/demo", "lastChecked": "2026-09-01", "verificationStatus": "unverified" }
+      { "name": "Tamil Nadu e-Sevai (TN eSevai) citizen portal", "url": "https://www.tnesevai.tn.gov.in/citizen/", "lastChecked": "2026-09-01", "verificationStatus": "unverified" }
     ],
     "faqs": [
       { "question": { "en": "Is this real government data?", "ta": "இது உண்மையான அரசு தரவா?" }, "answer": { "en": "No. This is DEMO data for development only.", "ta": "இல்லை. இது மேம்பாட்டிற்கான மாதிரி தரவு மட்டுமே." } }
@@ -96,7 +96,7 @@
     ],
     "department": { "en": "Demo Municipal Department", "ta": "மாதிரி நகராட்சித் துறை" },
     "officialSources": [
-      { "name": "Demo source (placeholder)", "url": "https://example.com/demo", "lastChecked": "2026-09-01", "verificationStatus": "unverified" }
+      { "name": "Tamil Nadu e-Sevai (TN eSevai) citizen portal", "url": "https://www.tnesevai.tn.gov.in/citizen/", "lastChecked": "2026-09-01", "verificationStatus": "unverified" }
     ],
     "faqs": [],
     "lastVerified": "2026-09-01",
@@ -137,12 +137,12 @@
       { "order": 2, "instruction": { "en": "DEMO: Submit the complaint through the local body channel.", "ta": "மாதிரி: உள்ளாட்சி வழியாக புகாரை சமர்ப்பிக்கவும்." }, "sourceRef": "demo-source" }
     ],
     "applicationChannels": [
-      { "type": "online", "label": { "en": "Demo civic portal", "ta": "மாதிரி குடிமை போர்டல்" }, "url": "https://example.com/demo" },
+      { "type": "online", "label": { "en": "Demo civic portal", "ta": "மாதிரி குடிமை போர்டல்" }, "url": "https://www.tnesevai.tn.gov.in/citizen/" },
       { "type": "offline", "label": { "en": "Demo local body office", "ta": "மாதிரி உள்ளாட்சி அலுவலகம்" } }
     ],
     "department": { "en": "Demo Local Body", "ta": "மாதிரி உள்ளாட்சி அமைப்பு" },
     "officialSources": [
-      { "name": "Demo source (placeholder)", "url": "https://example.com/demo", "lastChecked": "2026-09-01", "verificationStatus": "conditional" }
+      { "name": "Tamil Nadu e-Sevai (TN eSevai) citizen portal", "url": "https://www.tnesevai.tn.gov.in/citizen/", "lastChecked": "2026-09-01", "verificationStatus": "conditional" }
     ],
     "faqs": [],
     "lastVerified": "2026-09-01",
