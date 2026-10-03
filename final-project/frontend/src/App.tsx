@@ -1,13 +1,17 @@
-import { useState } from "react";
-import { ask, discover, getService } from "./api";
+import { useEffect, useState } from "react";
+import { ask, getService, listServices } from "./api";
 import { UI, pick, loadLang, saveLang, hasSavedLang } from "./i18n";
-import type { DiscoveryResult, GroundedResponse, Lang, ServiceRecord } from "./types";
+import type { GroundedResponse, Lang, ServiceRecord } from "./types";
 import { ServiceDetail } from "./ServiceDetail";
 import { useAccessibility } from "./accessibility";
 
 type View =
   | { screen: "search" }
   | { screen: "detail"; service: ServiceRecord };
+
+// Services featured on the home screen. These reference existing records by
+// their existing serviceId; no new records are created here.
+const FEATURED_SERVICE_IDS = ["income-certificate", "birth-certificate"] as const;
 
 export function App() {
   const { seniorMode, toggleSeniorMode } = useAccessibility();
@@ -22,32 +26,41 @@ export function App() {
     saveLang(next);
   }
   const [query, setQuery] = useState("");
-  const [result, setResult] = useState<DiscoveryResult | null>(null);
   const [answer, setAnswer] = useState<GroundedResponse | null>(null);
   const [view, setView] = useState<View>({ screen: "search" });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [featured, setFeatured] = useState<ServiceRecord[]>([]);
 
-  async function onSearch(e: React.FormEvent) {
-    e.preventDefault();
+  // Load the featured demo services for the home screen. Resilient: if the
+  // backend is unreachable the rest of the UI still works.
+  useEffect(() => {
+    let active = true;
+    listServices()
+      .then((services) => {
+        if (!active) return;
+        const byId = new Map(services.map((s) => [s.serviceId, s]));
+        const picked = FEATURED_SERVICE_IDS.map((id) => byId.get(id)).filter(
+          (s): s is ServiceRecord => s !== undefined
+        );
+        setFeatured(picked);
+      })
+      .catch(() => {
+        if (active) setFeatured([]);
+      });
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  // Primary assistant action: Enter in the search box submits this. The /ask
+  // pipeline runs discovery internally, so resolution, clarification, and
+  // honest no-match behavior are all preserved through this single action.
+  async function onAsk(e?: React.FormEvent) {
+    if (e) e.preventDefault();
+    if (!query.trim()) return;
     setError(null);
     setLoading(true);
-    setResult(null);
-    setAnswer(null);
-    try {
-      const r = await discover(query, lang);
-      setResult(r);
-    } catch {
-      setError("Could not reach the service. Is the backend running?");
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  async function onAsk() {
-    setError(null);
-    setLoading(true);
-    setResult(null);
     setAnswer(null);
     try {
       const a = await ask(query, lang);
@@ -113,7 +126,7 @@ export function App() {
         <p className="tagline">{UI.tagline[lang]}</p>
       </header>
 
-      <form className="searchbar" onSubmit={onSearch}>
+      <form className="searchbar" onSubmit={onAsk}>
         <label htmlFor="q" className="visually-hidden">
           {UI.askPlaceholder[lang]}
         </label>
@@ -123,11 +136,8 @@ export function App() {
           onChange={(e) => setQuery(e.target.value)}
           placeholder={UI.askPlaceholder[lang]}
         />
-        <button type="submit" disabled={loading}>
-          {loading ? "…" : UI.search[lang]}
-        </button>
-        <button type="button" className="ask-btn" onClick={onAsk} disabled={loading || !query.trim()}>
-          {UI.ask[lang]}
+        <button type="submit" className="ask-btn" disabled={loading || !query.trim()}>
+          {loading ? "…" : UI.ask[lang]}
         </button>
       </form>
 
@@ -181,35 +191,33 @@ export function App() {
         </section>
       )}
 
-      {result && (
-        <section className="results" aria-live="polite">
-          {result.kind === "resolved" && (
-            <button className="result-card" onClick={() => openService(result.service.serviceId)}>
-              <strong>{pick(result.service.name, lang)}</strong>
-              <span className="muted">
-                {pick(result.service.description, lang)}
-              </span>
-            </button>
-          )}
-
-          {result.kind === "clarification" && (
-            <div>
-              <p>{pick(result.question, lang)}</p>
-              <ul className="option-list">
-                {result.options.map((o) => (
-                  <li key={o.serviceId}>
-                    <button className="result-card" onClick={() => openService(o.serviceId)}>
-                      {pick(o.label, lang)}
-                    </button>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
-
-          {result.kind === "no-match" && (
-            <p className="muted">{pick(result.message, lang)}</p>
-          )}
+      {featured.length > 0 && (
+        <section className="featured" aria-labelledby="featured-h">
+          <h2 id="featured-h">{UI.popularServices[lang]}</h2>
+          <div className="results">
+            {featured.map((s) => (
+              <button
+                key={s.serviceId}
+                className="result-card"
+                onClick={() => openService(s.serviceId)}
+                aria-label={`${pick(s.name, lang)} — ${UI.openService[lang]}`}
+              >
+                <strong>{pick(s.name, lang)}</strong>
+                <span className="muted">{pick(s.description, lang)}</span>
+                <span className="badge-row">
+                  <span className={`badge status-${s.status}`}>
+                    {UI.verificationStatus[lang]}:{" "}
+                    {s.status === "verified"
+                      ? UI.statusVerified[lang]
+                      : s.status === "conditional"
+                        ? UI.statusConditional[lang]
+                        : UI.statusUnverified[lang]}
+                  </span>
+                  {s.dataSource === "demo" && <span className="badge">demo</span>}
+                </span>
+              </button>
+            ))}
+          </div>
         </section>
       )}
 

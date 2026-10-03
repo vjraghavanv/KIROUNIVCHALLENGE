@@ -22,6 +22,8 @@ export const UI = {
   statusUnverified: { en: "Unverified", ta: "சரிபார்க்கப்படாதது" },
   ask: { en: "Ask", ta: "கேள்" },
   answer: { en: "Answer", ta: "பதில்" },
+  popularServices: { en: "Popular services", ta: "பிரபலமான சேவைகள்" },
+  openService: { en: "Open service details", ta: "சேவை விவரங்களைத் திற" },
   citedSources: { en: "Cited sources", ta: "மேற்கோள் ஆதாரங்கள்" },
   viewFullService: { en: "View full service details", ta: "முழு சேவை விவரங்களைக் காண்க" },
   ungrounded: {
