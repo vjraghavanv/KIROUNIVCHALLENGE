@@ -53,6 +53,11 @@ tested.
   and emphasizes the primary action, with keyboard/screen-reader support,
   non-color status cues, and accessible loading/empty/error states. It changes
   how content is shown, never the underlying facts.
+- Demo UI refinements: the home screen now surfaces the two demo services
+  (Income Certificate and Birth Certificate) as clickable cards, and the search
+  interface was simplified to a single primary **Ask** action (Enter submits);
+  the redundant separate Search button was removed. Discovery, trust badges, and
+  the demo/unverified indicators are unchanged.
 - All service data is clearly-marked **demo/mock** data; no real government
   requirements are asserted yet.
 - Backend tests: **65/65 passing** (integration + validation + source-verification
@@ -198,8 +203,8 @@ Implemented functionality (all in the frontend):
 - **Larger typography and controls** in senior mode (`frontend/src/styles.css`):
   increased base font size and line height, larger headings, and larger search
   input and buttons.
-- **Minimum 56px touch targets** for the primary controls (search/ask buttons,
-  language chips, result cards, and the senior-mode toggle) via
+- **Minimum 56px touch targets** for the primary controls (the Ask button,
+  language chips, service cards, and the senior-mode toggle) via
   `min-height: 56px` in senior mode.
 - **Reduced visual density** in senior mode: wider spacing on document, step,
   channel, and source lists, and a roomier page container.
@@ -240,6 +245,35 @@ full WCAG certification, and the project does **not** include automated axe-core
 audits or a completed screen-reader certification. A full manual screen-reader
 pass and formal WCAG conformance review would still be required before claiming
 compliance.
+
+### Demo UI refinements (home screen + single Ask action)
+
+A small set of frontend-only refinements make the app clearer for a live demo
+without changing the trust model, the API contract, or any government content.
+
+- **Featured service cards** (`frontend/src/App.tsx`): the home screen shows a
+  "Popular services" section with the two existing demo services — Income
+  Certificate and Birth Certificate — as clickable cards. The cards are built
+  from the existing records (fetched via `listServices()` and filtered by their
+  existing `serviceId`s); no new records are created. Clicking a card opens that
+  service's existing detail view via `getService(serviceId)`. Each card keeps the
+  text verification badge (Unverified / Conditional) and the `demo` marker, so
+  nothing implies the government has verified the demo content.
+- **Single primary action** (`frontend/src/App.tsx`): the separate Search button
+  was removed. The search box is now the primary input, and pressing **Enter**
+  submits the query to the grounded **Ask** pipeline (`POST /ask`). Because
+  `/ask` runs the same retrieval internally, service resolution, clarification,
+  and honest no-match behavior are all preserved through this one action.
+- **Localized strings** (`frontend/src/i18n.ts`): added `popularServices` and
+  `openService` labels in English and Tamil for the home-screen section and card
+  accessible names.
+- **Styling** (`frontend/src/styles.css`): minor layout rules for the featured
+  section that reuse the existing card styles and senior-mode scaling.
+
+These changes are frontend-only. Frontend tests (11/11), typecheck, and the
+production build pass, and the behavior was verified in the browser across
+English, Tamil, senior mode, Birth Certificate details, Enter-to-submit, and the
+safe no-match path.
 
 ### Kiro Specs — Lesson 1 (`final-project/.kiro/specs/`)
 
