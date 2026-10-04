@@ -53,11 +53,12 @@ tested.
   and emphasizes the primary action, with keyboard/screen-reader support,
   non-color status cues, and accessible loading/empty/error states. It changes
   how content is shown, never the underlying facts.
-- Demo UI refinements: the home screen now surfaces the two demo services
-  (Income Certificate and Birth Certificate) as clickable cards, and the search
-  interface was simplified to a single primary **Ask** action (Enter submits);
-  the redundant separate Search button was removed. Discovery, trust badges, and
-  the demo/unverified indicators are unchanged.
+- Citizen-friendly frontend redesign: a calm, trustworthy, mobile-responsive UI
+  with a welcoming hero and one primary **Ask Namma Seva** action (Enter
+  submits), prominent Birth/Income Certificate cards built from the existing
+  records, a readable answer layout, and a scannable card-based service-detail
+  page. Trust/`demo`/unverified indicators use text plus color and remain
+  visible; the backend, data, schema, and verification logic are unchanged.
 - All service data is clearly-marked **demo/mock** data; no real government
   requirements are asserted yet.
 - Backend tests: **65/65 passing** (integration + validation + source-verification
@@ -246,34 +247,70 @@ audits or a completed screen-reader certification. A full manual screen-reader
 pass and formal WCAG conformance review would still be required before claiming
 compliance.
 
-### Demo UI refinements (home screen + single Ask action)
+### Citizen-friendly frontend redesign (demo-ready UI/UX)
 
-A small set of frontend-only refinements make the app clearer for a live demo
-without changing the trust model, the API contract, or any government content.
+A frontend-only redesign makes Namma Seva AI feel like a simple, calm,
+citizen-facing government-service assistant rather than a developer dashboard.
+It changes presentation only — the backend APIs, the `ServiceRecord` schema, the
+service data, and the trust/verification model are all unchanged, and no fake
+government information is introduced.
 
-- **Featured service cards** (`frontend/src/App.tsx`): the home screen shows a
-  "Popular services" section with the two existing demo services — Income
-  Certificate and Birth Certificate — as clickable cards. The cards are built
-  from the existing records (fetched via `listServices()` and filtered by their
-  existing `serviceId`s); no new records are created. Clicking a card opens that
-  service's existing detail view via `getService(serviceId)`. Each card keeps the
-  text verification badge (Unverified / Conditional) and the `demo` marker, so
-  nothing implies the government has verified the demo content.
-- **Single primary action** (`frontend/src/App.tsx`): the separate Search button
-  was removed. The search box is now the primary input, and pressing **Enter**
-  submits the query to the grounded **Ask** pipeline (`POST /ask`). Because
-  `/ask` runs the same retrieval internally, service resolution, clarification,
-  and honest no-match behavior are all preserved through this one action.
-- **Localized strings** (`frontend/src/i18n.ts`): added `popularServices` and
-  `openService` labels in English and Tamil for the home-screen section and card
-  accessible names.
-- **Styling** (`frontend/src/styles.css`): minor layout rules for the featured
-  section that reuse the existing card styles and senior-mode scaling.
+- **Home / landing** (`frontend/src/App.tsx`): a clear header (brand +
+  "Government services, explained simply." tagline, Tamil/English switch, and the
+  Senior-Friendly Mode toggle), a welcoming hero ("How can we help you?" with a
+  short supporting line), a large conversational input, and **one** primary
+  action — "Ask Namma Seva". Pressing **Enter** submits. There is no separate
+  Search button; the single Ask action runs the grounded `POST /ask` pipeline,
+  which performs retrieval internally so resolution, clarification, and honest
+  no-match behavior are preserved.
+- **Popular Services** (`frontend/src/App.tsx`): below the hero, Birth
+  Certificate and Income Certificate appear as prominent cards built from the
+  existing records (`listServices()`, filtered by their existing `serviceId`s —
+  no new records, no invented descriptions). Each card shows the service name,
+  the existing short description, a simple category label, trust/`demo` badges,
+  and a clear "View service" action that opens the existing detail view.
+- **Clear answer layout** (`frontend/src/App.tsx`): an Ask result is presented
+  as a readable answer ("Here's what you need" → service name → trust status →
+  explanation → cited source → link to full details → informational notice)
+  rather than a technical result object.
+- **Scannable service detail** (`frontend/src/ServiceDetail.tsx`): the detail
+  page is organized into cards — About this service, Documents, Steps, Where to
+  apply, Official sources, and an "Important note" trust card. Conditional
+  documents show their condition in plain language.
+- **Trust-first, non-color cues**: DEMO data, Unverified/Conditional status, the
+  source URL, and the informational-assistant notice are always visible, using
+  **text labels in addition to color** so status never depends on color alone.
+  Nothing makes an unverified demo record look like officially verified guidance,
+  and the underlying verification logic is unchanged.
+- **Bilingual** (`frontend/src/i18n.ts`): added hero, result-section, category,
+  and empty/error strings in English and Tamil (plus a `categoryLabel` helper for
+  generic category names). When Tamil is selected, headings, buttons,
+  placeholders, and localized service data all render in Tamil; no translations
+  were invented for content that does not exist in the data.
+- **Senior-Friendly Mode** (`frontend/src/styles.css`): preserved and improved —
+  larger typography, ≥56px touch targets, more spacing, reduced clutter, a
+  prominent primary action, visible keyboard focus, and preserved
+  `aria-pressed` / `aria-live` behavior and trust information.
+- **Mobile responsive** (`frontend/src/styles.css`): a modern, trustworthy visual
+  system (light background, readable type, rounded cards, subtle shadows,
+  restrained color). On small screens the hero fits naturally, the input and
+  primary action go full width, cards stack vertically, and there is no
+  horizontal scrolling.
+- **Friendly empty/error states** (`frontend/src/App.tsx`): a no match shows
+  "Sorry, I couldn't find a matching government service." with a helpful
+  suggestion; a backend problem shows "We couldn't connect to Namma Seva AI right
+  now. Please try again." — no technical stack traces. The safe no-match behavior
+  is preserved.
 
-These changes are frontend-only. Frontend tests (11/11), typecheck, and the
-production build pass, and the behavior was verified in the browser across
-English, Tamil, senior mode, Birth Certificate details, Enter-to-submit, and the
-safe no-match path.
+These changes are frontend-only and touch four files (`App.tsx`,
+`ServiceDetail.tsx`, `i18n.ts`, `styles.css`). Frontend tests (11/11), the
+TypeScript typecheck, and the production build all pass. The full demo flow was
+verified in the browser (desktop and a 375px mobile viewport) across English,
+Tamil, senior mode, Birth/Income Certificate details, Enter-to-submit, the safe
+no-match path, and no horizontal scrolling on mobile. Accessibility checks
+(semantic buttons, `aria-pressed`, `aria-live`, `role="alert"`, visible focus,
+text-based status) were preserved; this is not a claim of formal WCAG
+certification.
 
 ### Kiro Specs — Lesson 1 (`final-project/.kiro/specs/`)
 
