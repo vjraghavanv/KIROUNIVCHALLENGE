@@ -1,4 +1,4 @@
-import { UI, pick } from "./i18n";
+import { UI, pick, categoryLabel } from "./i18n";
 import type { DocumentKind, Lang, ServiceRecord, VerificationStatus } from "./types";
 
 interface Props {
@@ -23,105 +23,124 @@ export function ServiceDetail({ service, lang, onBack }: Props) {
   const steps = [...service.steps].sort((a, b) => a.order - b.order);
 
   return (
-    <main className="page">
-      <button className="link" onClick={onBack}>
-        ← {UI.back[lang]}
-      </button>
-
-      <header className="detail-header">
-        <h1>{pick(service.name, lang)}</h1>
-        <div className="badge-row">
-          <span
-            className={`badge status-${service.status}`}
-            title={UI.verificationStatus[lang]}
-          >
-            {UI.verificationStatus[lang]}: {UI[STATUS_LABEL[service.status]][lang]}
-          </span>
-          {service.dataSource === "demo" && <span className="badge">demo</span>}
-        </div>
-        <p className="muted">{pick(service.description, lang)}</p>
+    <div className="app">
+      <header className="topbar topbar-detail">
+        <button className="btn-back" onClick={onBack}>
+          ← {UI.back[lang]}
+        </button>
+        <span className="brand-text brand-text-compact">
+          <strong>{UI.appName[lang]}</strong>
+        </span>
       </header>
 
-      <section aria-labelledby="docs-h">
-        <h2 id="docs-h">{UI.documents[lang]}</h2>
-        {service.documents.length === 0 ? (
-          <p className="muted">{UI.notAvailable[lang]}</p>
-        ) : (
-          <ul className="doc-list">
-            {service.documents.map((d) => (
-              <li key={d.id}>
-                <span>{pick(d.name, lang)}</span>
-                <span className={`badge kind-${d.kind}`}>{UI[KIND_LABEL[d.kind]][lang]}</span>
-                {d.kind === "conditional" && d.condition && (
-                  <span className="muted"> — {pick(d.condition, lang)}</span>
-                )}
-              </li>
-            ))}
-          </ul>
-        )}
-      </section>
+      <main className="page detail">
+        <header className="detail-hero">
+          <span className="service-category">{categoryLabel(service.category, lang)}</span>
+          <h1>{pick(service.name, lang)}</h1>
+          <div className="badge-row">
+            <span
+              className={`badge status-${service.status}`}
+              title={UI.verificationStatus[lang]}
+            >
+              {UI.trustStatus[lang]}: {UI[STATUS_LABEL[service.status]][lang]}
+            </span>
+            {service.dataSource === "demo" && <span className="badge">demo</span>}
+          </div>
+        </header>
 
-      <section aria-labelledby="steps-h">
-        <h2 id="steps-h">{UI.steps[lang]}</h2>
-        {steps.length === 0 ? (
-          <p className="muted">{UI.notAvailable[lang]}</p>
-        ) : (
-          <ol className="step-list">
-            {steps.map((s) => (
-              <li key={s.order}>{pick(s.instruction, lang)}</li>
-            ))}
-          </ol>
-        )}
-      </section>
+        <section className="card" aria-labelledby="about-h">
+          <h2 id="about-h">{UI.aboutService[lang]}</h2>
+          <p>{pick(service.description, lang)}</p>
+        </section>
 
-      <section aria-labelledby="apply-h">
-        <h2 id="apply-h">{UI.whereToApply[lang]}</h2>
-        {service.applicationChannels.length === 0 ? (
-          <p className="muted">{UI.notAvailable[lang]}</p>
-        ) : (
-          <ul className="channel-list">
-            {service.applicationChannels.map((c, i) => (
-              <li key={i}>
-                {pick(c.label, lang)}
-                {c.url && (
-                  <>
-                    {" "}
-                    <a href={c.url} target="_blank" rel="noreferrer">
-                      {c.url}
-                    </a>
-                  </>
-                )}
-              </li>
-            ))}
-          </ul>
-        )}
-      </section>
+        <section className="card" aria-labelledby="docs-h">
+          <h2 id="docs-h">{UI.documents[lang]}</h2>
+          {service.documents.length === 0 ? (
+            <p className="muted">{UI.notAvailable[lang]}</p>
+          ) : (
+            <ul className="doc-list">
+              {service.documents.map((d) => (
+                <li key={d.id} className="doc-item">
+                  <div className="doc-head">
+                    <span className="doc-name">{pick(d.name, lang)}</span>
+                    <span className={`badge kind-${d.kind}`}>
+                      {UI[KIND_LABEL[d.kind]][lang]}
+                    </span>
+                  </div>
+                  {d.kind === "conditional" && d.condition && (
+                    <p className="doc-condition muted">↳ {pick(d.condition, lang)}</p>
+                  )}
+                </li>
+              ))}
+            </ul>
+          )}
+        </section>
 
-      <section aria-labelledby="src-h">
-        <h2 id="src-h">{UI.sources[lang]}</h2>
-        <p className="muted">
-          {UI.lastVerified[lang]}: {service.lastVerified}
-        </p>
-        {service.officialSources.length === 0 ? (
-          <p className="muted">{UI.notAvailable[lang]}</p>
-        ) : (
-          <ul className="source-list">
-            {service.officialSources.map((s, i) => (
-              <li key={i}>
-                {s.name} —{" "}
-                <a href={s.url} target="_blank" rel="noreferrer">
-                  {s.url}
-                </a>{" "}
-                <span className="muted">
-                  ({UI.lastVerified[lang]}: {s.lastChecked})
-                </span>
-              </li>
-            ))}
-          </ul>
-        )}
-      </section>
+        <section className="card" aria-labelledby="steps-h">
+          <h2 id="steps-h">{UI.steps[lang]}</h2>
+          {steps.length === 0 ? (
+            <p className="muted">{UI.notAvailable[lang]}</p>
+          ) : (
+            <ol className="step-list">
+              {steps.map((s) => (
+                <li key={s.order}>{pick(s.instruction, lang)}</li>
+              ))}
+            </ol>
+          )}
+        </section>
 
-      <footer className="demo-note">{UI.demoNotice[lang]}</footer>
-    </main>
+        <section className="card" aria-labelledby="apply-h">
+          <h2 id="apply-h">{UI.whereToApply[lang]}</h2>
+          {service.applicationChannels.length === 0 ? (
+            <p className="muted">{UI.notAvailable[lang]}</p>
+          ) : (
+            <ul className="channel-list">
+              {service.applicationChannels.map((c, i) => (
+                <li key={i}>
+                  {pick(c.label, lang)}
+                  {c.url && (
+                    <>
+                      {" "}
+                      <a href={c.url} target="_blank" rel="noreferrer">
+                        {c.url}
+                      </a>
+                    </>
+                  )}
+                </li>
+              ))}
+            </ul>
+          )}
+        </section>
+
+        <section className="card" aria-labelledby="src-h">
+          <h2 id="src-h">{UI.sources[lang]}</h2>
+          <p className="muted">
+            {UI.lastVerified[lang]}: {service.lastVerified}
+          </p>
+          {service.officialSources.length === 0 ? (
+            <p className="muted">{UI.notAvailable[lang]}</p>
+          ) : (
+            <ul className="source-list">
+              {service.officialSources.map((s, i) => (
+                <li key={i}>
+                  {s.name} —{" "}
+                  <a href={s.url} target="_blank" rel="noreferrer">
+                    {s.url}
+                  </a>{" "}
+                  <span className="muted">
+                    ({UI.lastVerified[lang]}: {s.lastChecked})
+                  </span>
+                </li>
+              ))}
+            </ul>
+          )}
+        </section>
+
+        <section className="card card-note" aria-labelledby="note-h">
+          <h2 id="note-h">{UI.importantNote[lang]}</h2>
+          <p>{UI.demoNotice[lang]}</p>
+        </section>
+      </main>
+    </div>
   );
 }

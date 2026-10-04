@@ -9,7 +9,21 @@ export const UI = {
     en: "Government services, explained simply.",
     ta: "அரசு சேவைகள், எளிமையாக விளக்கப்பட்டவை.",
   },
-  askPlaceholder: { en: "What do you need help with?", ta: "என்ன சேவை வேண்டும்?" },
+  askPlaceholder: {
+    en: "Example: I need a birth certificate",
+    ta: "எடுத்துக்காட்டு: எனக்கு பிறப்பு சான்றிதழ் வேண்டும்",
+  },
+  heroTitle: { en: "How can we help you?", ta: "நாங்கள் எப்படி உதவலாம்?" },
+  heroSubtitle: {
+    en: "Ask about a government service in Tamil or English.",
+    ta: "தமிழ் அல்லது ஆங்கிலத்தில் ஒரு அரசு சேவையைப் பற்றி கேளுங்கள்.",
+  },
+  askPrimary: { en: "Ask Namma Seva", ta: "நம்ம சேவாவிடம் கேள்" },
+  hereIsWhat: { en: "Here's what you need", ta: "உங்களுக்குத் தேவையானது இதோ" },
+  aboutService: { en: "About this service", ta: "இந்தச் சேவை பற்றி" },
+  trustStatus: { en: "Trust status", ta: "நம்பகத்தன்மை நிலை" },
+  categoryLabel: { en: "Category", ta: "வகை" },
+  viewService: { en: "View service", ta: "சேவையைப் பார்" },
   search: { en: "Search", ta: "தேடு" },
   documents: { en: "Documents", ta: "ஆவணங்கள்" },
   steps: { en: "Steps", ta: "படிகள்" },
@@ -45,6 +59,19 @@ export const UI = {
     en: "Demo data only. This is an informational assistant, not an official service. Verify on the official source before acting.",
     ta: "மாதிரி தரவு மட்டுமே. இது ஒரு தகவல் உதவியாளர், அதிகாரப்பூர்வ சேவை அல்ல. செயல்படுவதற்கு முன் அதிகாரப்பூர்வ ஆதாரத்தில் சரிபார்க்கவும்.",
   },
+  noMatchTitle: {
+    en: "Sorry, I couldn't find a matching government service.",
+    ta: "மன்னிக்கவும், பொருந்தும் அரசு சேவையைக் கண்டறிய முடியவில்லை.",
+  },
+  noMatchHint: {
+    en: "Try asking in a different way, for example: \"I need a birth certificate\".",
+    ta: "வேறு விதமாகக் கேட்டுப் பாருங்கள், எடுத்துக்காட்டு: \"எனக்கு பிறப்பு சான்றிதழ் வேண்டும்\".",
+  },
+  backendError: {
+    en: "We couldn't connect to Namma Seva AI right now. Please try again.",
+    ta: "இப்போது நம்ம சேவை AI உடன் இணைக்க முடியவில்லை. மீண்டும் முயற்சிக்கவும்.",
+  },
+  importantNote: { en: "Important note", ta: "முக்கியக் குறிப்பு" },
 } as const;
 
 const LANG_KEY = "nsa.lang";
@@ -74,6 +101,24 @@ export function saveLang(lang: Lang): void {
   } catch {
     // Non-fatal: persistence is best-effort.
   }
+}
+
+// Localized labels for the service category enum. UI chrome only — these are
+// generic category names, not government facts about any specific service.
+const CATEGORY_LABELS: Record<string, LocalizedText> = {
+  certificate: { en: "Certificate", ta: "சான்றிதழ்" },
+  "welfare-scheme": { en: "Welfare scheme", ta: "நலத்திட்டம்" },
+  pension: { en: "Pension", ta: "ஓய்வூதியம்" },
+  education: { en: "Education", ta: "கல்வி" },
+  "civic-service": { en: "Civic service", ta: "குடிமைச் சேவை" },
+  other: { en: "Service", ta: "சேவை" },
+};
+
+const CATEGORY_FALLBACK: LocalizedText = { en: "Service", ta: "சேவை" };
+
+export function categoryLabel(category: string, lang: Lang): string {
+  const entry = CATEGORY_LABELS[category] ?? CATEGORY_FALLBACK;
+  return entry[lang];
 }
 
 export function pick(text: LocalizedText, lang: Lang): string {
