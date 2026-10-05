@@ -1,0 +1,6 @@
+# Runtime dependencies for the Namma Seva AI backend (production / App Runner).
+# Mirrors the runtime deps in pyproject.toml. Test-only deps (pytest, hypothesis,
+# httpx) are intentionally excluded from the production image.
+fastapi>=0.115
+uvicorn[standard]>=0.30
+pydantic>=2.7

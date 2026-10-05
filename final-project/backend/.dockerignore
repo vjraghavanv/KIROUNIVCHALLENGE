@@ -1,0 +1,12 @@
+# Keep the build context small and free of local/dev/secret files.
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+.hypothesis/
+*.egg-info/
+tests/
+.env
+*.local
+.postman.json
+.DS_Store

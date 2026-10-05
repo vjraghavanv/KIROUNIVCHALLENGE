@@ -1,0 +1,29 @@
+# AWS Amplify Hosting build settings for Namma Seva AI.
+#
+# Only the React/Vite frontend is built and hosted here. The FastAPI backend is
+# deployed separately (see README "Backend Deployment"); its URL is supplied to
+# the frontend at build time via the VITE_API_BASE_URL environment variable,
+# configured in the Amplify Console.
+#
+# Monorepo layout: the frontend lives under final-project/frontend, declared via
+# `appRoot`. The backend is intentionally NOT part of this build.
+version: 1
+applications:
+  - appRoot: final-project/frontend
+    frontend:
+      phases:
+        preBuild:
+          commands:
+            - npm ci
+        build:
+          commands:
+            # VITE_API_BASE_URL is injected from the Amplify Console env vars.
+            - npm run build
+      artifacts:
+        # Vite outputs to dist/ (relative to appRoot).
+        baseDirectory: dist
+        files:
+          - "**/*"
+      cache:
+        paths:
+          - node_modules/**/*

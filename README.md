@@ -312,6 +312,111 @@ no-match path, and no horizontal scrolling on mobile. Accessibility checks
 text-based status) were preserved; this is not a claim of formal WCAG
 certification.
 
+## Deployment
+
+> **Namma Seva AI is an informational assistant, not an official government
+> portal.** All service data is clearly-marked demo/mock data. Always verify on
+> the official source before acting.
+
+### Production architecture
+
+```
+Browser
+  ↓
+AWS Amplify Hosting
+  ↓
+Namma Seva AI React frontend  (static build, served by Amplify)
+  ↓   (HTTPS calls to VITE_API_BASE_URL)
+Configured FastAPI backend URL  (hosted separately)
+  ↓
+Service discovery / RAG APIs  (/discover, /ask, /services, …)
+```
+
+The React/Vite frontend is a static site hosted on AWS Amplify. The FastAPI
+backend is hosted separately (Amplify Hosting does not run FastAPI directly) and
+its URL is supplied to the frontend at build time via `VITE_API_BASE_URL`. The
+RAG/provider architecture is unchanged and still defaults to the offline
+MockProvider — no live AWS is required to run the app.
+
+### Running locally
+
+Backend (FastAPI, from `final-project/backend`):
+
+```bash
+python -m venv .venv && source .venv/bin/activate
+pip install -e ".[test]"
+uvicorn app.main:app --port 8000
+```
+
+Frontend (React/Vite, from `final-project/frontend`):
+
+```bash
+npm install
+npm run dev            # http://localhost:5173
+```
+
+In development, leave `VITE_API_BASE_URL` unset: the app calls `/api`, and the
+Vite dev server proxies `/api` → `http://localhost:8000` (see `vite.config.ts`).
+
+### Environment variables
+
+| Variable | Side | Local default | Production |
+| --- | --- | --- | --- |
+| `VITE_API_BASE_URL` | Frontend | unset → `/api` (dev proxy) | deployed backend origin, e.g. `https://your-backend-host.example.com` |
+| `NSA_ALLOWED_ORIGINS` | Backend | `http://localhost:5173` | deployed frontend origin(s), comma-separated, e.g. `https://main.xxxxx.amplifyapp.com` |
+| `NSA_PROVIDER` | Backend | `mock` | `mock` (or `bedrock` only if explicitly configured) |
+
+Templates: `final-project/frontend/.env.example` and
+`final-project/backend/.env.example`. Never commit real values; `.env` and
+`*.local` are gitignored.
+
+### Frontend deployment — AWS Amplify
+
+1. Connect the GitHub repository in the AWS Amplify Console.
+2. Amplify uses the repo-root `amplify.yml`, which declares the monorepo app
+   root `final-project/frontend`, installs with `npm ci`, builds with
+   `npm run build`, and publishes the Vite `dist/` directory. The FastAPI
+   backend is **not** built here.
+3. In the Amplify app's **Environment variables**, set
+   `VITE_API_BASE_URL` to your deployed backend origin.
+4. (SPA fallback) This app does not use client-side routing, so no router
+   rewrite is required. If you later add deep-linked routes, add an Amplify
+   rewrite rule: source `</^[^.]+$|\.(?!(css|js|png|jpg|svg|ico|json)$)([^.]+$)/>`,
+   target `/index.html`, type `200 (Rewrite)`.
+
+### Backend deployment
+
+The FastAPI backend is hosted separately on **AWS App Runner** (Amplify Hosting
+does not run FastAPI). The backend lives in `final-project/backend` and ships a
+production container.
+
+- **Container:** `final-project/backend/Dockerfile` (Python 3.11-slim) installs
+  `final-project/backend/requirements.txt`, copies `app/`, and starts
+  `uvicorn app.main:app --host 0.0.0.0 --port ${PORT}`. App Runner supplies
+  `$PORT` (default 8080); `.dockerignore` keeps secrets, tests, and `.postman.json`
+  out of the image.
+- **Health check path:** `GET /health` → `{"status":"ok"}` (configure this as the
+  App Runner health-check path).
+- **API endpoints:** `POST /discover`, `POST /ask`, `GET /categories`,
+  `GET /services`, `GET /services/{service_id}`, `POST /checklist/evaluate`.
+- **Environment variables (set in App Runner):**
+  - `NSA_PROVIDER=mock` — offline MockProvider; no AWS/Bedrock access required.
+  - `NSA_ALLOWED_ORIGINS=https://<your-amplify-domain>` — the Amplify frontend
+    origin (comma-separated for multiple; never `*`).
+- **Suggested size:** 0.25 vCPU / 0.5 GB is sufficient for this demo.
+
+**Architecture:** Browser → Amplify (React frontend) → `VITE_API_BASE_URL` →
+App Runner (FastAPI) → service-discovery / RAG APIs.
+
+**Connecting the two:**
+
+1. Deploy the backend to App Runner from `final-project/backend/Dockerfile`;
+   note the generated HTTPS URL (e.g. `https://xxxx.<region>.awsapprunner.com`).
+2. In App Runner, set `NSA_ALLOWED_ORIGINS` to your Amplify origin.
+3. In the Amplify Console, set `VITE_API_BASE_URL` to the App Runner HTTPS URL,
+   then trigger a new Amplify build so the value is baked into the static site
+   (Vite inlines it at build time).
+
 ### Kiro Specs — Lesson 1 (`final-project/.kiro/specs/`)
 
 Each spec contains `requirements.md` (EARS-style, testable acceptance criteria,

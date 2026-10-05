@@ -5,6 +5,8 @@ Endpoints per shared/CONTRACT.md. All data is DEMO/mock. No Bedrock dependency.
 
 from __future__ import annotations
 
+import os
+
 from fastapi import FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
@@ -18,10 +20,18 @@ from app.knowledge.knowledge_base import KnowledgeBase
 
 app = FastAPI(title="Namma Seva AI", version="0.1.0-demo")
 
-# Frontend dev server (Vite default). Adjust via config for other origins.
+# Allowed CORS origins. Comma-separated list from NSA_ALLOWED_ORIGINS; defaults
+# to the local Vite dev server. In production (e.g. AWS Amplify) set this to the
+# deployed frontend origin(s) rather than allowing all origins. Example:
+#   NSA_ALLOWED_ORIGINS=https://main.xxxxx.amplifyapp.com
+def _allowed_origins() -> list[str]:
+    raw = os.environ.get("NSA_ALLOWED_ORIGINS", "http://localhost:5173")
+    return [origin.strip() for origin in raw.split(",") if origin.strip()]
+
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173"],
+    allow_origins=_allowed_origins(),
     allow_methods=["GET", "POST"],
     allow_headers=["*"],
 )

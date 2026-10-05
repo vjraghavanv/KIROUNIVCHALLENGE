@@ -1,4 +1,10 @@
-// Typed API client. Talks to the FastAPI backend via the Vite /api proxy.
+// Typed API client. Single source of truth for the backend base URL.
+//
+// - Local development: VITE_API_BASE_URL is unset, so BASE defaults to "/api"
+//   and the Vite dev server proxies /api -> http://localhost:8000.
+// - Production (e.g. AWS Amplify): set VITE_API_BASE_URL to the deployed
+//   FastAPI backend origin (for example https://api.example.com). The value is
+//   injected at build time by Vite. No localhost URL is hardcoded for production.
 
 import type {
   DiscoveryResult,
@@ -8,7 +14,9 @@ import type {
   ServiceRecord,
 } from "./types";
 
-const BASE = "/api";
+// Trim any trailing slash so paths join cleanly (`${BASE}/health`).
+const RAW_BASE = import.meta.env.VITE_API_BASE_URL ?? "/api";
+const BASE = RAW_BASE.replace(/\/+$/, "");
 
 async function json<T>(res: Response): Promise<T> {
   if (!res.ok) {
