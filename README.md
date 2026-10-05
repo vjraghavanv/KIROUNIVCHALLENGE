@@ -348,6 +348,15 @@ pip install -e ".[test]"
 uvicorn app.main:app --port 8000
 ```
 
+Or run the production container (the same image App Runner builds):
+
+```bash
+cd final-project/backend
+docker build -t namma-seva-backend .
+docker run -p 8080:8080 -e NSA_PROVIDER=mock namma-seva-backend
+# health check: curl http://localhost:8080/health
+```
+
 Frontend (React/Vite, from `final-project/frontend`):
 
 ```bash
@@ -362,7 +371,7 @@ Vite dev server proxies `/api` → `http://localhost:8000` (see `vite.config.ts`
 
 | Variable | Side | Local default | Production |
 | --- | --- | --- | --- |
-| `VITE_API_BASE_URL` | Frontend | unset → `/api` (dev proxy) | deployed backend origin, e.g. `https://your-backend-host.example.com` |
+| `VITE_API_BASE_URL` | Frontend | unset → `/api` (dev proxy) | App Runner backend origin, e.g. `https://xxxx.<region>.awsapprunner.com` |
 | `NSA_ALLOWED_ORIGINS` | Backend | `http://localhost:5173` | deployed frontend origin(s), comma-separated, e.g. `https://main.xxxxx.amplifyapp.com` |
 | `NSA_PROVIDER` | Backend | `mock` | `mock` (or `bedrock` only if explicitly configured) |
 
