@@ -14,6 +14,26 @@ Build-along project for the AWS User Group Madurai Kiro University challenge.
   - **bonus-lesson-1 (250 credits)** — Kiro Web, cloud sessions, and cloud configuration: shifting agentic engineering into a cloud sandbox and syncing local Kiro setup (steering, hooks, skills, powers, custom agents) into cloud sessions that follow your account across Kiro Web, CLI, and IDE. Notes in `kiro-university-lesson-7/bonus-lesson-1/README.md`.
   - **bonus-lesson-2** — Custom API Testing power (`kiro-university-lesson-7/bonus-lesson-2/api-testing-power/`) with an `api-testing` skill (`plugin.json` + `skills/api-testing/SKILL.md`) giving practical REST API testing guidance: HTTP methods, status codes, response validation, and PASS/FAIL reporting. Used it to run a real `GET https://jsonplaceholder.typicode.com/posts/1`, validating status 200, JSON content-type, required fields (`userId`, `id`, `title`, `body`), `id` equals 1, and response time (~34.5ms). All five assertions passed. Result recorded in `kiro-university-lesson-7/bonus-lesson-2/results/api-testing-power-result.md`.
 
+## How the seven lessons and bonuses are applied in this project
+
+One pointer per lesson showing where each Kiro capability is used. The graded
+evidence for each required lesson lives in the corresponding top-level
+`kiro-university-lesson-1/` … `-7/` directory. Several lessons are also
+demonstrated inside the Namma Seva AI final project; the final-project pointer
+is given where it genuinely exists.
+
+| Lesson | One-pointer |
+| --- | --- |
+| **Lesson 1 — Specs** | The final project was built spec-first — 8 EARS-style specs (requirements / design / tasks) drive every phase, in `final-project/.kiro/specs/` (e.g. `government-service-discovery`, `rag-assistant`, `accessibility-senior-mode`). Lesson evidence: `kiro-university-lesson-1/`. |
+| **Lesson 2 — Steering** | 8 steering documents enforce project-wide rules in `final-project/.kiro/steering/` (e.g. `data-governance.md` and `ai-rag.md` define the trust model: demo/unverified data is never shown as verified). Lesson evidence: `kiro-university-lesson-2/`. |
+| **Lesson 3 — Hooks** | Demonstrated by the format-TypeScript-on-save hook in `kiro-university-lesson-3/.kiro/hooks/format-on-save.json`. *Honest note:* the final project itself does not ship its own hook — the graded evidence is in the lesson folder, not under `final-project/`. |
+| **Lesson 4 — Property-Based Testing** | The final project uses real Hypothesis property tests in `final-project/backend/tests/` — e.g. `test_rag_properties.py` asserts an answer never cites an un-retrieved source, and `test_multilingual_properties.py` asserts equivalent EN/TA queries resolve to the same service. Lesson evidence: `kiro-university-lesson-4/`. |
+| **Lesson 5 — Powers (Postman)** | API-testing power evidence is in `kiro-university-lesson-5/.postman.json` (5/5 assertions passed against JSONPlaceholder). *Honest note:* this validated an external API during learning; it is not wired into the final project's own endpoints. |
+| **Lesson 6 — MCP** | `fetch` + `playwright` MCP servers configured in `kiro-university-lesson-6/.kiro/settings/mcp.json`. The Playwright MCP was actively used throughout this project to drive live end-to-end browser verification — including the final Amplify demo. |
+| **Lesson 7 — Custom Agents** | The `web-tester` custom agent (`kiro-university-lesson-7/.kiro/agents/web-tester.json`) targets the Playwright MCP for UI checks, with a recorded live run in `results/example-domain-test.md`. Label is per the build-along notes; the public Kiro University pages do not publish a per-lesson title list. |
+| **Bonus 1 — Kiro Web / cloud sessions / cloud config** | Documented in `kiro-university-lesson-7/bonus-lesson-1/README.md`: agentic engineering in a cloud sandbox, with steering / hooks / powers / agents synced across Kiro Web, CLI, and IDE. *Honest note:* this is written-up evidence; it is not independently verifiable from the repo alone. |
+| **Bonus 2 — Custom API-testing Power** | A real custom power in `kiro-university-lesson-7/bonus-lesson-2/api-testing-power/` (`plugin.json` + `skills/api-testing/SKILL.md`) with a recorded PASS result in `results/api-testing-power-result.md`. |
+
 ## Final Project — Namma Seva AI
 
 **Government services, explained simply.** Namma Seva AI is a multilingual
