@@ -50,8 +50,11 @@ validation and source verification), **Phase 3** (the Multilingual Assistant:
 language-invariant Tamil/English discovery), **Phase 4** (the grounded RAG
 assistant: a `/ask` pipeline with source-grounded answers and a provider
 abstraction), and **Phase 5** (Accessibility & Senior Mode: a Tamil-first,
-large-control, screen-reader-friendly experience) have been implemented and
-tested.
+large-control, screen-reader-friendly experience) have been implemented, tested,
+and deployed. The frontend is live on **AWS Amplify**
+(`https://staging.d2jovlq11yujgp.amplifyapp.com`) and runs in backend-less
+demo mode (mock build) with the two featured services (Birth Certificate and
+Income Certificate) served from bundled data.
 
 ### Status
 
@@ -79,8 +82,14 @@ tested.
   records, a readable answer layout, and a scannable card-based service-detail
   page. Trust/`demo`/unverified indicators use text plus color and remain
   visible; the backend, data, schema, and verification logic are unchanged.
+- **Live on AWS Amplify:** the frontend is deployed at
+  `https://staging.d2jovlq11yujgp.amplifyapp.com` in backend-less demo mode
+  (`VITE_API_BASE_URL=mock`). The three demo services and grounded answers are
+  served from bundled data (`frontend/src/mockData.ts`, `mockApi.ts`) — no
+  backend required. The FastAPI backend and its Dockerfile are ready for AWS App
+  Runner deployment; see the Deployment section below.
 - All service data is clearly-marked **demo/mock** data; no real government
-  requirements are asserted yet.
+  requirements are asserted.
 - Backend tests: **65/65 passing** (integration + validation + source-verification
   + multilingual + RAG + property-based). Frontend typecheck and production build
   pass.
@@ -102,13 +111,10 @@ separated and a shared contract as the source of truth.
   action steps, application channels, and official sources, with demo/unverified
   badges and a persistent "informational assistant" notice.
 
-**API endpoints (Phase 1):** `GET /health`, `POST /discover`, `GET /categories`,
+**API endpoints:** `GET /health`, `POST /discover`, `POST /ask`, `GET /categories`,
 `GET /services`, `GET /services/{serviceId}`, `POST /checklist/evaluate`.
 
-**Run locally:** backend — `cd final-project/backend`, create a venv, install
-`.[test]`, then `uvicorn app.main:app --port 8000`. Frontend — `cd
-final-project/frontend`, `npm install`, `npm run dev` (proxies `/api` to the
-backend on port 8000).
+See the **Deployment → Running locally** section below for start commands.
 
 ### Phase 2 implementation (Official Knowledge Base)
 
